@@ -33,7 +33,7 @@
     s += F.t(P, lx, 40, 'the day’s shape, winter clocks', { weight: 800, size: 12.5 });
     const rows = [['00:00', '05:30 IST', 'daily close, Binance/Bybit funding, fee tier recompute'], ['08:00', '13:30 IST', 'London open; Friday options expiry'], ['13:30', '19:00 IST', 'US data (CPI, payrolls) on release days'], ['14:30', '20:00 IST', 'NYSE open: the loudest hour'], ['21:00', '02:30 IST', 'NYSE close; volume fades'], ['every :00', 'every :30 IST', 'Hyperliquid funding']];
     rows.forEach((rw, i) => { const y = 64 + i * 42; s += F.t(P, lx, y, rw[0], { size: 12, mono: true, weight: 700 }); s += F.t(P, lx + 80, y, rw[1], { size: 11, mono: true, fill: P.you }); s += F.wrap(P, lx, y + 15, rw[2], 250, { size: 10.5, fill: P.muted, lh: 12 }).s; });
-    s += F.t(P, lx, 338, 'summer: every US-anchored row is one hour earlier in IST', { size: 10.5, fill: P.oracle, weight: 700 });
+    s += F.wrap(P, lx, 328, 'summer: every US-anchored row is one hour earlier in IST', 255, { size: 10.5, fill: P.oracle, weight: 700, lh: 15 }).s;
     return s;
   });
 
@@ -87,7 +87,7 @@
 
   LESSONS['layer-5'] = {
     intro: 'Crypto trades every hour of every day, which tempts people to think time does not matter. It matters more, not less, because so much of what moves the market runs on clocks that have nothing to do with crypto: funding at the top of every hour, a daily close at midnight UTC, the US stock market’s open and close, a futures exchange that shuts for the weekend, and a few government statistics with release times printed months in advance. This layer puts all of them on one clock, yours.',
-    legend: 'In the pictures, black is UTC, blue is IST (your clock), amber is New York, the oracle or the underlying.',
+    legend: 'In the pictures, white is UTC, blue is IST (your clock), amber is New York, the oracle or the underlying.',
     sections: [
       { id: 'clocks', t: 'The exchange runs on UTC; you live in IST',
         p: ['Hyperliquid’s clock is UTC. Funding settles at the top of each UTC hour; the fee tier recomputes at the end of each UTC day; the daily candle closes at 00:00 UTC. India Standard Time is UTC+5:30 all year, which makes the conversion easy and slightly odd: everything that happens on the hour in UTC happens at half past in IST.',

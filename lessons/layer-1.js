@@ -113,7 +113,7 @@
 
   LESSONS['layer-1'] = {
     intro: 'Layer 0 was the machine that matches buyers and sellers. This layer is about what, exactly, you are buying and selling on Hyperliquid: not coins, but contracts whose price follows a coin. Four ideas carry the whole layer: a perp is a future that never settles, long and short are mirror images, leverage changes your deposit and not your profit, and the entry price is an average of your opening fills.',
-    legend: 'In the pictures, amber is spot or the oracle (the outside world’s price), black is the perp price, blue is you.',
+    legend: 'In the pictures, amber is spot or the oracle (the outside world’s price), white is the perp price, blue is you.',
     sections: [
       { id: 'three-ways', t: 'Three ways to own a price',
         p: ['There are three ways to be exposed to the price of bitcoin. **Spot**: you buy the coin and hold it. The price is whatever the market says, you can never lose more than you paid, and there is nothing to maintain.',

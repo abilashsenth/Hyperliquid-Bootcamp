@@ -83,7 +83,7 @@
     return s;
   });
 
-  FIG['oi-vs-volume'] = P => F.svg(P, 660, 240, 'Open interest drawn as the level in a tank, positions currently held and counted once, next to volume drawn as flow through a pipe; a gauge shows premium as the perp price minus the oracle', id => {
+  FIG['oi-vs-volume'] = P => F.svg(P, 660, 246, 'Open interest drawn as the level in a tank, positions currently held and counted once, next to volume drawn as flow through a pipe; a gauge shows premium as the perp price minus the oracle', id => {
     let s = '';
     s += F.r(P, 30, 50, 150, 150, { rx: 12, fill: P.surf, stroke: P.line, sw: 1.5 }); s += F.r(P, 34, 120, 142, 76, { rx: 8, fill: P.youSoft });
     s += F.t(P, 105, 34, 'open interest', { anchor: 'middle', weight: 800, size: 13 }); s += F.t(P, 105, 150, 'positions held now', { anchor: 'middle', size: 11, fill: P.you, weight: 700 }); s += F.t(P, 105, 166, 'each pair counted once', { anchor: 'middle', size: 10, fill: P.muted });
@@ -122,13 +122,13 @@
 
   LESSONS['layer-3'] = {
     intro: 'Hyperliquid shows you three prices for every asset, and the one you watch most, the last trade, is the one the exchange cares about least. This layer builds the other two from scratch: the oracle, which sets funding, and the mark, which decides liquidations and triggers. Then it takes funding apart, formula and all, and turns it into dollars per day, which is the number you will actually use.',
-    legend: 'In the pictures, amber is the oracle or anything from outside Hyperliquid, black is the mark, grey dashes are Hyperliquid’s own book, blue is you.',
+    legend: 'In the pictures, amber is the oracle or anything from outside Hyperliquid, white is the mark, grey dashes are Hyperliquid’s own book, blue is you.',
     sections: [
       { id: 'three-prices', t: 'Three prices on one screen',
         p: ['Open any market and the header shows a **mark** price and an **oracle** price; the book and the tape show the **last trade** and the mid. They are rarely identical, and each has a job.',
           'The last trade and mid are just what Hyperliquid’s own book did a moment ago. They are for display. The oracle is the outside world: a weighted median of the coin’s spot price on the big exchanges, published by the validators about every three seconds. It is used to compute funding. The mark is the exchange’s best estimate of the fair perp price, built from the oracle, Hyperliquid’s own book, and other exchanges’ perps, and it is used for everything that matters: liquidations, TP/SL triggers, unrealized PnL and margin checks.',
           'The practical consequence came up in Layer 2 and is worth repeating: things happen to your position at the mark price, which can differ from any price on your screen’s tape by a few ticks for minutes at a time.'],
-        fig: 'three-prices', cap: 'The three prices over the same minutes. The grey dashes are the tape, the amber dashes the oracle, the black line the mark.',
+        fig: 'three-prices', cap: 'The three prices over the same minutes. The grey dashes are the tape, the amber dashes the oracle, the white line the mark.',
         key: 'Last is for looking at. Oracle sets funding. Mark decides liquidations, triggers and PnL.' },
 
       { id: 'oracle', t: 'The oracle: a weighted median of other exchanges', try: 'median-explorer', figDocs: 'oracle-median',

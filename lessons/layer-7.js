@@ -48,7 +48,7 @@
     return s;
   });
 
-  FIG['journal-row'] = P => F.svg(P, 660, 210, 'One journal entry drawn as a row of fields: when, market, setup, side, entry, stop, target, size, exit, fees, funding, the result in R, the adherence grade kept separate from PnL, the exit reason and one lesson', id => {
+  FIG['journal-row'] = P => F.svg(P, 660, 256, 'One journal entry drawn as a row of fields: when, market, setup, side, entry, stop, target, size, exit, fees, funding, the result in R, the adherence grade kept separate from PnL, the exit reason and one lesson', id => {
     let s = '';
     const fields = [['when', '03/11 19:12 IST'], ['market', 'BTC'], ['setup', '4h HL retest'], ['side', 'long'], ['entry', '76,350'], ['stop', '75,900'], ['target', '77,700'], ['size', '0.0222'], ['exit', '77,700'], ['fees', '0.64'], ['funding', '0.11'], ['R', '+2.95'], ['grade', 'A'], ['reason', 'target'], ['lesson', 'waited for the 4h close; no fiddling']];
     let x = 20, y = 40;

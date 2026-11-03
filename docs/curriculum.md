@@ -305,7 +305,7 @@ Then do the drills below on testnet. Reading this layer takes an hour; the drill
 
 Layer 0 was the machine that matches buyers and sellers. This layer is about what, exactly, you are buying and selling on Hyperliquid: not coins, but contracts whose price follows a coin. Four ideas carry the whole layer: a perp is a future that never settles, long and short are mirror images, leverage changes your deposit and not your profit, and the entry price is an average of your opening fills.
 
-_In the pictures, amber is spot or the oracle (the outside world’s price), black is the perp price, blue is you._
+_In the pictures, amber is spot or the oracle (the outside world’s price), white is the perp price, blue is you._
 
 #### 1. Three ways to own a price
 
@@ -779,7 +779,7 @@ When that list is done, the pass check for this layer is honest: you can place a
 
 Hyperliquid shows you three prices for every asset, and the one you watch most, the last trade, is the one the exchange cares about least. This layer builds the other two from scratch: the oracle, which sets funding, and the mark, which decides liquidations and triggers. Then it takes funding apart, formula and all, and turns it into dollars per day, which is the number you will actually use.
 
-_In the pictures, amber is the oracle or anything from outside Hyperliquid, black is the mark, grey dashes are Hyperliquid’s own book, blue is you._
+_In the pictures, amber is the oracle or anything from outside Hyperliquid, white is the mark, grey dashes are Hyperliquid’s own book, blue is you._
 
 #### 1. Three prices on one screen
 
@@ -791,7 +791,7 @@ The practical consequence came up in Layer 2 and is worth repeating: things happ
 
 ![Three price lines over the same minutes: the last trade and mid from the Hyperliquid book, the oracle built from other exchanges, and the mark that blends them; each is labelled with what it is used for](figures/three-prices.svg)
 
-_The three prices over the same minutes. The grey dashes are the tape, the amber dashes the oracle, the black line the mark._
+_The three prices over the same minutes. The grey dashes are the tape, the amber dashes the oracle, the white line the mark._
 
 **Takeaway.** Last is for looking at. Oracle sets funding. Mark decides liquidations, triggers and PnL.
 
@@ -1205,7 +1205,7 @@ _The JELLY incident, simplified. The backstop is the counterparty of last resort
 
 Crypto trades every hour of every day, which tempts people to think time does not matter. It matters more, not less, because so much of what moves the market runs on clocks that have nothing to do with crypto: funding at the top of every hour, a daily close at midnight UTC, the US stock market’s open and close, a futures exchange that shuts for the weekend, and a few government statistics with release times printed months in advance. This layer puts all of them on one clock, yours.
 
-_In the pictures, black is UTC, blue is IST (your clock), amber is New York, the oracle or the underlying._
+_In the pictures, white is UTC, blue is IST (your clock), amber is New York, the oracle or the underlying._
 
 #### 1. The exchange runs on UTC; you live in IST
 

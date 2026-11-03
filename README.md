@@ -73,6 +73,7 @@ Built 3 November 2026. The docs pages that carry numbers (fees, funding, liquida
 - Lesson text and figures: edit `lessons/layer-N.js`. A section is an object with an id (its link), a title, paragraphs, and optionally a figure name, a sandbox name, an example, a takeaway and a quick check. Figures are functions of a palette that return an SVG string; `lib/fig.js` has the primitives and a `wrap()` helper for text that must fit.
 - Sandboxes: `lib/widgets.js`. A widget is `{title, html(id), init(root, ctx)}`; use `ctx.timer` for intervals so the page can clear them when you navigate away.
 - Layer goals, drills, quizzes, media, schedule, glossary: the `DATA` block in `index.html`.
+- The look: the design tokens (colours, the three typefaces, radii) are the `:root` block at the top of the stylesheet in `index.html`. The page is dark only: an obsidian canvas, a light serif (Newsreader) for headings, Inter for reading, Roboto Mono in capitals for labels and numbers, white as the one primary action. Colour appears only in the toolkit tiles on the Overview and in the figures. Figures draw with the page's variables; `lib/fig.js` repeats the same colours as fixed values for the exported SVGs, so change the two together.
 - Then run `node tools/gen-docs.js`. It rewrites `docs/curriculum.md`, `docs/media-track.md` and `docs/figures/`, and fails loudly if a lesson references a figure that does not exist.
 
 ## Contributing

@@ -54,7 +54,7 @@
     return s;
   });
 
-  FIG['depth-two-ways'] = P => F.svg(P, 660, 310, 'Left, a ladder with a size bar on every level; right, the same book as a cumulative depth chart, two slopes meeting at the mid, with a 10 BTC buy shown reaching 77,255', id => {
+  FIG['depth-two-ways'] = P => F.svg(P, 660, 336, 'Left, a ladder with a size bar on every level; right, the same book as a cumulative depth chart, two slopes meeting at the mid, with a 10 BTC buy shown reaching 77,255', id => {
     const L = F.ladder(P, B.asks.slice(0, 7), B.bids.slice(0, 7), { x: 16, y: 14, w: 250, rowH: 18, unit: 'BTC', total: true, pxW: 72, szW: 60 });
     let s = L.s;
     s += F.t(P, 16, L.bottom + 20, 'Ladder: a bar per level, and a running total', { size: 11.5, fill: P.muted, weight: 700 });
@@ -73,7 +73,7 @@
     s += F.t(P, X(77255.5) - 6, cy1 - 8, 'runs out at 77,255', { size: 11, fill: P.you, weight: 700, anchor: 'end' });
     s += F.t(P, cx0, 26, 'bids', { size: 11.5, weight: 800, fill: P.bid }); s += F.t(P, cx1, 26, 'asks', { size: 11.5, weight: 800, fill: P.ask, anchor: 'end' });
     s += F.t(P, cx0 - 6, cy0 + 4, '42', { size: 10, mono: true, fill: P.muted, anchor: 'end' }); s += F.t(P, cx0 - 6, cy1 + 4, '0', { size: 10, mono: true, fill: P.muted, anchor: 'end' });
-    s += F.t(P, 320, L.bottom + 20, 'Depth chart: the totals drawn as slopes. Steep walls mean a deep book.', { size: 11.5, fill: P.muted, weight: 700 });
+    s += F.wrap(P, 320, cy1 + 46, 'Depth chart: the totals drawn as slopes. Steep walls mean a deep book.', 320, { size: 11.5, fill: P.muted, weight: 700, lh: 16 }).s;
     return s;
   });
 

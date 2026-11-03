@@ -23,10 +23,10 @@ const lessonFiles = fs.readdirSync(path.join(ROOT, 'lessons')).filter(f => /^lay
 vm.runInContext([read('lib/fig.js'), ...lessonFiles.map(f => read('lessons/' + f)), read('lib/widgets.js')].join('\n'), ctx);
 const { LAYERS, MEDIA, SCHEDULE, GLOSSARY, VERIFIED_ON, FigLib, FIG, LESSONS, WIDGETS } = ctx;
 
-// ---- figures as standalone SVG files, light palette ----
+// ---- figures as standalone SVG files, in the page's palette with the colours fixed ----
 const figDir = path.join(ROOT, 'docs', 'figures');
 fs.mkdirSync(figDir, { recursive: true });
-const PAL = FigLib.pal('light');
+const PAL = FigLib.pal('fixed');
 const used = new Set();
 for (const l of LAYERS) {
   const L = LESSONS[l.id]; if (!L) continue;
