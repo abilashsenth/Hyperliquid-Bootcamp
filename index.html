@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A ten-layer manual perps-trading curriculum for Hyperliquid with a live market clock, calculators built on the docs' formulas, a vetted media track, quizzes and a trade journal.">
 <title>Hyperliquid Workbench</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230e9a86%27/%3E%3Cpath d=%27M9 9h4v5h6V9h4v14h-4v-5h-6v5H9z%27 fill=%27white%27/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
 <style>
@@ -278,8 +279,85 @@ td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-sp
 .footnav{display:flex;justify-content:space-between;gap:12px;margin-top:28px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.86rem;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:50;box-shadow:var(--shadow-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* lesson body: the chapter itself. Prose sits in one paper surface; figures and sandboxes are the only framed things inside it. */
+.toc{margin:18px 0 10px;padding:16px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.toc .toc-h{font-weight:800;margin-bottom:6px}
+.toc ol{margin:0;padding:0 0 0 22px;columns:2;column-gap:28px;font-size:.9rem}
+.toc li{margin:3px 0;break-inside:avoid}
+.toc li a{color:var(--ink);font-weight:600}
+.toc li .tag{margin-left:6px;vertical-align:1px}
+.toc .note{margin:8px 0 0}
+.lsn{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:6px 30px 18px;box-shadow:var(--shadow);margin:14px 0}
+.lintro{font-size:1.05rem;color:var(--muted);margin:18px 0 6px;max-width:66ch;line-height:1.65}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:.84rem;color:var(--muted);margin:8px 0 4px}
+.legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.legend .sw.bid{background:var(--good)} .legend .sw.ask{background:var(--bad)} .legend .sw.you{background:var(--info)}
+.lsec{padding:26px 0 24px;border-top:1px solid var(--line);scroll-margin-top:76px}
+.lsec:first-of-type{border-top:0}
+.lsec h2{display:flex;align-items:baseline;gap:12px;font-size:1.32rem;margin:0 0 10px}
+.lsec h2 .n{font-family:var(--mono);font-size:.78rem;font-weight:600;color:var(--primary-strong);background:var(--primary-soft);border-radius:8px;padding:3px 7px;line-height:1;flex:none;transform:translateY(-3px)}
+.lsec h2 .ht{flex:1;min-width:0}
+.lsec h2 .anchor{font-weight:600;color:var(--muted);opacity:0;transition:opacity .15s;font-size:1rem;padding:0 6px;flex:none}
+.lsec:hover h2 .anchor,.lsec h2 .anchor:focus-visible{opacity:1}
+@media (hover:none){ .lsec h2 .anchor{opacity:.6} }
+.lsec p{max-width:68ch;font-size:1rem;line-height:1.72;margin:.6rem 0}
+.lsec .lsteps{max-width:68ch;margin:10px 0}
+.lsec .lsteps li{padding:9px 0}
+.lsec code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+.fig{margin:18px 0 6px;padding:14px 14px 12px;background:var(--surface-2);border-radius:14px}
+.fig .fw{overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;min-width:min(100%,460px);color:var(--ink)}
+.fig figcaption{font-size:.84rem;color:var(--muted);margin-top:10px;max-width:72ch;line-height:1.5}
+.try{margin:18px 0 6px;border:1.5px solid color-mix(in srgb,var(--primary) 45%,transparent);border-radius:14px;overflow:hidden;background:var(--surface)}
+.try .th{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--primary-soft);font-weight:800;font-size:.95rem}
+.try .tb{padding:14px}
+.try .tn{margin:0;padding:10px 14px;border-top:1px dashed var(--line);font-size:.84rem;color:var(--muted);line-height:1.5}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;margin-bottom:12px}
+.ctrls label{display:flex;flex-direction:column;gap:5px;font-size:.74rem;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.ctrls label .mono{color:var(--ink);font-size:.86rem;font-weight:600}
+.ctrls input[type=range]{accent-color:var(--primary);width:200px;max-width:100%;margin:4px 0}
+.ctrls select,.ctrls input[type=text],.ctrls input[type=number]{font:inherit;font-size:.92rem;padding:7px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);min-width:0}
+.ctrls input[type=text],.ctrls input[type=number]{width:150px}
+.ctrls .btn{margin-bottom:2px}
+.wrow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;align-items:start}
+.wviz{overflow-x:auto}
+.wviz svg{display:block;width:100%;height:auto;min-width:min(100%,320px);color:var(--ink);max-width:560px}
+.wfull svg{max-width:none}
+.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.readout div{background:var(--surface-2);border-radius:10px;padding:8px 10px;min-width:0}
+.readout div.wide{grid-column:1/-1}
+.readout b{display:block;font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:2px}
+.readout span{font-family:var(--mono);font-size:.88rem;font-weight:600;word-break:break-word}
+.readout span .tag{font-family:var(--sans)}
+.wside .note{margin:10px 0 0}
+.wlog{list-style:none;margin:10px 0 0;padding:0;font-size:.84rem;color:var(--muted)}
+.wlog li{padding:4px 0;border-top:1px solid var(--line)}
+.wlog li:first-child{border-top:0;color:var(--ink);font-weight:600}
+.tape{list-style:none;margin:10px 0 0;padding:0;font-size:.82rem;max-height:160px;overflow:auto}
+.tape li{display:flex;gap:10px;padding:3px 0;border-top:1px solid var(--line)}
+.tape li.buy .mono:first-child{color:var(--good)} .tape li.sell .mono:first-child{color:var(--bad)}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.92rem}
+.checks li:first-child{border-top:0}
+.checks li .m{font-weight:800;width:18px;flex:none}
+.checks li.ok .m{color:var(--good)} .checks li.no .m{color:var(--bad)}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:10px;font-weight:700}
+.verdict.ok{background:var(--good-soft);color:var(--good)} .verdict.no{background:var(--bad-soft);color:var(--bad)}
+.key{margin:16px 0 0;padding:12px 16px;border-left:3px solid var(--primary);background:var(--primary-soft);border-radius:0 12px 12px 0;font-weight:700;max-width:68ch;line-height:1.5}
+.qc{margin:16px 0 0;padding:14px 16px;border:1px dashed var(--line-2);border-radius:12px;max-width:68ch}
+.qc .qh{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.qc .qq{font-weight:700;margin-bottom:10px}
+.qc .opts{gap:6px}
+.qc .opt{padding:9px 12px;font-size:.92rem}
+.qc .qf{margin-top:10px;font-size:.92rem;line-height:1.5}
+.qc .qf b{font-weight:800}
+.btn.sm.ghost{border-color:transparent}
+.codeblock{background:var(--surface-2);border-radius:12px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.55;margin:14px 0;max-width:100%;white-space:pre}
+.thesis{margin-top:8px;padding:12px 14px;border-radius:10px;background:var(--surface-2);font-weight:700;line-height:1.5}
+.wlog .grade{font:inherit;font-size:.8rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);margin-left:6px}
+.wlog .x{font:inherit;font-size:.74rem;border:0;background:transparent;color:var(--muted);cursor:pointer;margin-left:6px}
 @media (max-width: 940px){
-  .shell{grid-template-columns:1fr}
+  .shell{grid-template-columns:minmax(0,1fr)}
   .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px 0 8px}
   .nav{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:6px;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
@@ -293,6 +371,18 @@ td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-sp
   .cp{display:none}
   .live .chip:nth-child(2){display:none}
   .lesson{padding:20px 18px}
+  .toc ol{columns:1}
+  .lsn{padding:4px 16px 12px}
+  .lsec h2{font-size:1.15rem}
+  .wrow{grid-template-columns:minmax(0,1fr)}
+  .content,.wviz,.wside,.fig,.try,.lsec,.lsn,.toc{min-width:0}
+  .fig{padding:10px}
+}
+@media (max-width: 520px){
+  .live .chip:first-child{display:none}
+  .topbar-in{gap:10px}
+  .logo{min-width:0}
+  .logo span:last-child{overflow:hidden;text-overflow:ellipsis}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
@@ -309,6 +399,20 @@ td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-sp
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="lib/fig.js"></script>
+<!-- LESSON SCRIPTS -->
+<script src="lessons/layer-0.js"></script>
+<script src="lessons/layer-1.js"></script>
+<script src="lessons/layer-2.js"></script>
+<script src="lessons/layer-3.js"></script>
+<script src="lessons/layer-4.js"></script>
+<script src="lessons/layer-5.js"></script>
+<script src="lessons/layer-6.js"></script>
+<script src="lessons/layer-7.js"></script>
+<script src="lessons/layer-8.js"></script>
+<script src="lessons/layer-9.js"></script>
+<!-- /LESSON SCRIPTS -->
+<script src="lib/widgets.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const DOCS = 'https://hyperliquid.gitbook.io/hyperliquid-docs/';
@@ -371,10 +475,10 @@ const LAYERS = [
  drills:['Open BTC, then HYPE, on testnet. Watch each book for 10 minutes. Write down the spread, the size at the top three levels, and how often the best bid changes.','Place a limit buy 1% below mid, then a market buy of the same size. Compare the fill price with the ask you saw, and the fee on each fill in trade history.','Place a Post Only buy at the best ask. The rejection message is the maker/taker line in one sentence.'],
  pass:'For any order you are about to send, you can say whether it is maker or taker, what that costs, and roughly how far a market order of that size would move the price.',
  quiz:[
-  {q:'A market buy larger than the size at the best ask fills at:',o:['The best ask only','Successively worse levels until it is done','The mid price'],a:1},
+  {q:'A market buy larger than the size at the best ask fills at:',o:['Successively worse levels until it is done','The mid price','The best ask only'],a:0},
   {q:'Which order pays the maker fee?',o:['A market order','A limit order that rests and later fills','An IOC order'],a:1},
-  {q:'Two orders at the same price. Who fills first?',o:['The larger one','The earlier one','Random'],a:1},
-  {q:'Minimum order value on Hyperliquid:',o:['$1','$10','$100'],a:1},
+  {q:'Two orders at the same price. Who fills first?',o:['Random','The larger one','The earlier one'],a:2},
+  {q:'Minimum order value on Hyperliquid:',o:['$10','$100','$1'],a:0},
   {q:'A Post Only buy placed at the best ask is:',o:['Filled immediately','Rejected','Rested at the best bid'],a:1}]},
 {id:'layer-1',n:1,name:'Perpetuals',tag:'CSS',
  goal:'Know what a perp is as a contract, and compute notional, margin, entry price and PnL by hand.',
@@ -391,35 +495,34 @@ const LAYERS = [
  drills:['Open a 0.01 BTC long and a 0.5 SOL short at 3x on testnet. Before looking at the position panel, compute notional, margin, and PnL at +1% and −1%. Check.','Add to the long at a different price. Recompute the entry price by hand. Check.','Close half the long. Confirm the entry price did not move and that closed PnL includes the fee.'],
  pass:'You can fill in notional, margin, leverage, entry and PnL for any position from the fills alone.',
  quiz:[
-  {q:'A perp differs from a dated future mainly because:',o:['It has no expiry and funding keeps it near spot','It allows less leverage','It settles every day'],a:0},
-  {q:'Notional of 0.5 BTC at $80,000:',o:['$40,000','$160,000','$20,000'],a:0},
-  {q:'Your entry price changes on:',o:['Closing fills','Opening fills','Funding payments'],a:1},
+  {q:'A perp differs from a dated future mainly because:',o:['It settles every day','It has no expiry and funding keeps it near spot','It allows less leverage'],a:1},
+  {q:'Notional of 0.5 BTC at $80,000:',o:['$160,000','$20,000','$40,000'],a:2},
+  {q:'Your entry price changes on:',o:['Opening fills','Funding payments','Closing fills'],a:0},
   {q:'Unrealized PnL on Hyperliquid is computed from:',o:['Last trade','Mark price','Oracle price'],a:1},
-  {q:'On Hyperliquid, leverage is checked:',o:['Continuously','Only when you open or increase a position','At each funding print'],a:1}]},
+  {q:'On Hyperliquid, leverage is checked:',o:['At each funding print','Continuously','Only when you open or increase a position'],a:2}]},
 {id:'layer-2',n:2,name:'The Hyperliquid machine',tag:'JavaScript',
  goal:'Use every part of the trading screen on purpose, and know what each order type does under stress.',
  surprise:'Trading is gas-free and the response you get back is the committed result, not a promise. Because the book is on-chain, every position and liquidation is public, which Layer 6 uses.',
- intro:'Hyperliquid is its own L1 with two halves: HyperCore (the on-chain order books, margin engine, spot and staking) and HyperEVM (an EVM for apps). You never need HyperEVM to trade. Oracle prices update about every 3 seconds and the chain handles around 200,000 orders a second.',
  setup:['Wallet: Rabby or MetaMask, a fresh wallet used only for this, seed phrase offline. Email login works but gives different addresses on mainnet and testnet, so use a wallet.','Mainnet: deposit about 10 USDC on Arbitrum (keep a little ETH there for gas). The first deposit pays a 1 USDC activation fee. This unlocks the testnet faucet.','Testnet: app.hyperliquid-testnet.xyz/drip pays 1,000 mock USDC to an address that has deposited on mainnet.','Click Enable Trading and sign the gas-free message. Withdrawals back to Arbitrum cost $1 and take a few minutes.'],
- orders:[['Market','Fills now against the book','Always a taker; set your slippage tolerance'],['Limit (GTC)','Rests until filled or cancelled','Maker if it rests, taker if it crosses'],['Post Only (ALO)','Rests, or is rejected','Never pays the taker fee'],['IOC','Fills what it can now, cancels the rest','The honest market order'],['Reduce Only','Can only shrink a position','Use it on every exit'],['Stop market / stop limit','Fires when mark hits the trigger','Long triggers sit above mid, short below'],['Take market / take limit','Fires when mark hits the trigger','The opposite rule'],['TP/SL on a position','Market order on trigger, 10% slippage tolerance, mark-triggered','Use a limit TP/SL to choose your own slippage'],['Trailing stop','Follows the best mark by a distance or percent','Perps only; never moves backwards'],['Scale','A ladder of limits across a price range','Spreads entries without babysitting'],['TWAP','Slices every 30 s or more, 5 min to 7 days, $100 minimum, 3% slippage per slice','Catch-up slices grow to 3x; pauses during network upgrades'],['Chase','Post Only that re-prices to the best bid or ask','Runs in your browser tab; 5 at a time']],
- fees:'0.045% taker and 0.015% maker at tier 0; spot 0.07% and 0.04%. Tiers step at $5M, $25M, $100M and $500M of 14-day volume (spot counts double), recomputed at the end of each UTC day. Staking HYPE discounts fees from 5% (more than 10 HYPE) to 40% (more than 500,000). A referral code discounts your first $25M of volume. Fees go to HLP and the assistance fund, not to a team.',
+ orders:[['Market','Fills now against the book','Always a taker; set your slippage tolerance'],['Limit (GTC)','Rests until filled or cancelled','Maker if it rests, taker if it crosses'],['Post Only (ALO)','Rests, or is rejected','Never pays the taker fee'],['IOC','Fills what it can now, cancels the rest','The honest market order'],['Reduce Only','Can only shrink a position','Use it on every exit'],['Stop market / stop limit','Fires when mark hits the trigger','Buy stops sit above the mid, sell stops below'],['Take market / take limit','Fires when mark hits the trigger','Buy takes sit below the mid, sell takes above'],['TP/SL on a position','Market order on trigger, 10% slippage tolerance, mark-triggered','Market unless you have a reason; a limit TP/SL caps slippage but may not fill'],['Trailing stop','Follows the best mark by a distance or percent','Perps only; never moves backwards'],['Scale','A ladder of limits across a price range','Spreads entries without babysitting'],['TWAP','Slices every 30 s or more, 5 min to 7 days, $100 minimum, 3% slippage per slice','Catch-up slices grow to 3x; pauses during network upgrades'],['Chase','Post Only that re-prices to sit one tick inside the best bid or ask (at it when the spread is one tick)','Runs in your browser tab; 5 at a time']],
+ fees:'0.045% taker and 0.015% maker at tier 0; spot 0.07% and 0.04%. Tiers step at $5M, $25M, $100M, $500M, $2B and $7B of 14-day volume (spot counts double), recomputed at the end of each UTC day. Staking HYPE discounts fees from 5% (more than 10 HYPE) to 40% (more than 500,000). A referral code discounts your first $25M of volume. Fees go to HLP and the assistance fund, not to a team.',
  concepts:[],
  read:[{t:'How to start trading',u:D('onboarding/how-to-start-trading')},{t:'Testnet faucet',u:D('onboarding/testnet-faucet')},{t:'Order types',u:D('trading/order-types')},{t:'Take profit and stop loss orders',u:D('trading/take-profit-and-stop-loss-orders-tp-sl')},{t:'Fees',u:D('trading/fees')},{t:'Miscellaneous UI',u:D('trading/miscellaneous-ui')},{t:'Portfolio graphs',u:D('trading/portfolio-graphs')},{t:'FAQ: My TP/SL did not execute correctly',u:D('support/faq/trade-outcome-looks-incorrect/my-tp-sl-did-not-execute-correctly')},{t:'FAQ: Why was my chase order canceled?',u:D('support/faq/trade-outcome-looks-incorrect/why-was-my-chase-order-canceled')},{t:'FAQ: Trailing stops',u:D('support/faq/trailing-stops')}],
  media:['hl_x','hl_discord'],
  drills:['Execute every row of the order table once on testnet, each with a line on what you expected and what happened.','Set a position TP/SL, then an order-tied (OCO) TP/SL. Cancel a partially filled parent and watch its children vanish. That is the rule that bites people.','Find the fee on one fill in trade history and reconcile it to the schedule.'],
  pass:'You can place any row of the order table without reading, and you know which orders trigger on mark and which fill against the book.',
  quiz:[
-  {q:'TP/SL orders on Hyperliquid trigger on:',o:['Last traded price','Mark price','Oracle price'],a:1},
-  {q:'Slippage tolerance on a market TP/SL:',o:['1%','10%','None, it is a limit'],a:1},
+  {q:'TP/SL orders on Hyperliquid trigger on:',o:['Oracle price','Last traded price','Mark price'],a:2},
+  {q:'Slippage tolerance on a market TP/SL:',o:['10%','None, it is a limit','1%'],a:0},
   {q:'You cancel a partially filled parent order that has OCO children. The children:',o:['Stay active','Are cancelled too','Are placed immediately'],a:1},
-  {q:'Tier-0 perps fees, taker and maker:',o:['0.045% and 0.015%','0.10% and 0.02%','0.02% and 0.00%'],a:0},
-  {q:'TWAP minimum total size and smallest slice interval:',o:['$10 and 10 s','$100 and 30 s','$1,000 and 60 s'],a:1}]},
+  {q:'Tier-0 perps fees, taker and maker:',o:['0.10% and 0.02%','0.02% and 0.00%','0.045% and 0.015%'],a:2},
+  {q:'TWAP minimum total size and smallest slice interval:',o:['$100 and 30 s','$1,000 and 60 s','$10 and 10 s'],a:0}]},
 {id:'layer-3',n:3,name:'Prices and funding',tag:'',
  goal:'Know which of the three prices does what, and compute what a position costs to hold.',
  surprise:'Your stop can fire at a price that never traded here. Triggers and liquidations use mark, and mark is built mostly from other exchanges.',
  concepts:[
   'Oracle price: every validator publishes, about every 3 seconds, a weighted median of spot prices on Binance (weight 3), OKX (2), Bybit (2), Kraken, KuCoin, Gate, MEXC and Hyperliquid (1 each). Used for funding and as one input to mark.',
-  'Mark price: the median of three inputs. The oracle plus a 150-second average of Hyperliquid’s own premium; the median of best bid, best ask and last trade here; and a weighted median of the large CEX perp prices. Mark drives liquidations, TP/SL triggers and unrealized PnL.',
+  'Mark price: the median of three inputs. The oracle plus a 150-second average of Hyperliquid’s own premium; the median of best bid, best ask and last trade here; and a weighted median of the large centralised exchanges’ (CEX) perp prices. Mark drives liquidations, TP/SL triggers and unrealized PnL.',
   'Mid and last: what the book shows. They can sit a few ticks from mark for minutes at a time.',
   'Funding: paid every hour on the hour as one eighth of an 8-hour rate. Rate = premium + clamp(0.01% − premium, −0.05%, +0.05%). The premium is sampled every 5 seconds and averaged over the hour, measured on impact prices (what 20,000 USDC of BTC or ETH, or 6,000 USDC of anything else, would move the book). Positive means longs pay shorts. Capped at 4% an hour. Paid on oracle notional, peer to peer, no fee taken. When the book sits at the oracle the rate is 0.00125% an hour, about 11% a year paid by longs.',
   'Open interest: total size held, counted once for both sides. It is the how-many-people-are-positioned counter; Layer 6 reads it together with price.',
@@ -430,33 +533,32 @@ const LAYERS = [
  drills:['For BTC and one alt, write down the hourly funding for 24 hours from the funding history tab. Compute what a $1,000 long would have paid (the funding tool on the Tools page does the arithmetic).','Find a moment where mark and last differ by more than a tick and name which input moved.','Hold a 1x long on testnet across a funding print and watch the payment land at :00 UTC.'],
  pass:'You can state what a position pays per day at today’s rate, and which price would trigger your stop.',
  quiz:[
-  {q:'Hyperliquid pays funding every:',o:['8 hours','Hour','Day'],a:1},
+  {q:'Hyperliquid pays funding every:',o:['Hour','Day','8 hours'],a:0},
   {q:'Positive funding means:',o:['Shorts pay longs','Longs pay shorts','The exchange pays both'],a:1},
-  {q:'The funding payment is computed on:',o:['Mark notional','Oracle notional','Entry notional'],a:1},
-  {q:'Mark price is:',o:['The last trade','The median of three inputs including CEX prices','The best bid'],a:1},
-  {q:'The fixed interest component of funding, per 8 hours:',o:['0.01%','0.1%','1%'],a:0}]},
+  {q:'The funding payment is computed on:',o:['Entry notional','Mark notional','Oracle notional'],a:2},
+  {q:'Mark price is:',o:['The median of three inputs including other exchanges’ prices','The best bid','The last trade'],a:0},
+  {q:'The fixed interest component of funding, per 8 hours:',o:['1%','0.01%','0.1%'],a:1}]},
 {id:'layer-4',n:4,name:'Margin, liquidation and sizing',tag:'React',
  goal:'Never be surprised by a liquidation, and size every trade from risk rather than from leverage.',
  surprise:'Leverage does not change how much you make on a move. It changes how far away the cliff is.',
  concepts:[
   'Initial margin = notional / leverage. Maintenance margin = half the initial margin at the asset’s maximum leverage: 1.25% of notional on a 40x asset like BTC, 2% on 25x, 2.5% on 20x, 5% on 10x, up to 16.7% on 3x.',
   'Cross: all your USDC backs all cross positions, so one bad position can take the account. Isolated: only the margin you assigned, and a liquidation touches only that position. Learn on isolated.',
-  'Liquidation price: liq = price − side × margin_available / size / (1 − side / maintenance_leverage), where margin_available is equity minus maintenance margin. Worked through the docs’ formula: 0.005 BTC long at 76,834 on isolated 5x liquidates about 19% lower; at 10x about 9% lower. The Tools page runs this for you.',
+  'Liquidation price, isolated: liq = entry − side × margin_available ÷ size ÷ (1 − side × maintenance rate), where margin_available = margin posted − maintenance margin, side is +1 for a long and −1 for a short, and the maintenance rate is 1.25% on BTC. As a distance from the entry: (1 ÷ leverage − maintenance) ÷ (1 − maintenance) for a long and ÷ (1 + maintenance) for a short. A 5x BTC long liquidates about 19% below the entry, a 10x long about 9%, a 10x short about 8.6% above. The Tools page runs this for you.',
   'How a liquidation runs, all on mark price: equity below maintenance, and the engine sends a market order for the whole position (20% slices with a 30-second cooldown above 100k USDC, 10k on testnet). If equity falls below two thirds of maintenance, the backstop liquidator, a part of HLP, takes the position and its margin, and the maintenance margin is not returned. No clearance fee.',
   'ADL: if the backstop cannot absorb a position, the most profitable and most levered positions on the other side are closed against it at mark. You can be closed while winning. No position means no exposure.',
   'Unrealized profit is withdrawable only while remaining margin is at least the larger of initial margin and 10% of notional.',
   'Sizing: choose the stop first. Risk per trade = 0.5% to 1% of the account. Size = risk / distance to stop. Leverage is an output, not an input. Keep liquidation at least three times further away than the stop.'],
- example:'Account 1,000, risk 1% = $10, stop 2% away, so notional is $500. On isolated 5x that is $100 of margin and a liquidation about 19% away, nine times the stop distance.',
  read:[{t:'Margining',u:D('trading/margining')},{t:'Margin tiers',u:D('trading/margin-tiers')},{t:'Liquidations',u:D('trading/liquidations')},{t:'Auto-deleveraging',u:D('trading/auto-deleveraging')},{t:'FAQ: Why was I liquidated?',u:D('support/faq/trade-outcome-looks-incorrect/why-was-i-liquidated')},{t:'FAQ: How does margining work?',u:D('support/faq/trade-outcome-looks-incorrect/how-does-margining-work')}],
  media:['arkham'],
  drills:['Isolated, $20 margin, 10x short on a volatile alt, on testnet. Compute the liquidation price first. Let it happen. Compare the fill, what margin came back, and how long it took.','Rebuild the same idea as a sized trade: 1% risk, stop 2% away. Note how different the position looks.','Switch a position from cross to isolated and back. Note what the UI does to margin each way.'],
  pass:'You state liquidation price, dollars at risk and stop distance for every trade before you send it.',
  quiz:[
   {q:'Maintenance margin on an asset whose maximum leverage is 40x:',o:['2.5%','1.25%','0.5%'],a:1},
-  {q:'In cross margin, a liquidation can:',o:['Only touch that position','Take all cross positions and the cross margin','Do nothing to margin'],a:1},
-  {q:'The backstop liquidator takes over when equity falls below:',o:['Maintenance margin','Two thirds of maintenance margin','Half of initial margin'],a:1},
+  {q:'In cross margin, a liquidation can:',o:['Do nothing to margin','Only touch that position','Take all cross positions and the cross margin'],a:2},
+  {q:'The backstop liquidator takes over when equity falls below:',o:['Two thirds of maintenance margin','Half of initial margin','Maintenance margin'],a:0},
   {q:'Auto-deleveraging can close:',o:['Only losing positions','Profitable positions on the other side','Only HLP’s positions'],a:1},
-  {q:'Risk $10 with a stop 2% away. Notional:',o:['$200','$500','$1,000'],a:1}]},
+  {q:'Risk $10 with a stop 2% away. Notional:',o:['$1,000','$200','$500'],a:2}]},
 {id:'layer-5',n:5,name:'Time, sessions and timezones',tag:'',
  goal:'Know what hour it is in the market, what happens at :00, and which scheduled events can move your position.',
  surprise:'Crypto trades 24/7 but is moved by things on clocks. Hourly funding, the 00:00 UTC daily close, the US cash open, the CME weekend, Friday 08:00 UTC options expiry and 08:30 ET data releases give most days their shape.',
@@ -465,8 +567,8 @@ const LAYERS = [
   'Funding settles every hour at :00 UTC, which is :30 past the hour in IST. Whoever holds a position at that second pays or receives.',
   'Fee tier is recomputed at the end of each UTC day (05:30 IST) on rolling 14-day volume.',
   'The daily candle closes at 00:00 UTC (05:30 IST), the most watched level in crypto. Binance and Bybit pay funding then too, and at 08:00 and 16:00 UTC (some pairs every 4 hours); flows around those prints spill into every venue.',
-  'Network upgrades are announced on Discord and X. During the upgrade window only post-only orders fill and TWAP slices pause.',
-  'Sessions as regimes: Asia (00:00 to 08:00 UTC) is usually the quietest. Europe (07:00 to 16:00 UTC) builds. The US cash session (13:30 to 21:00 UTC) carries the most volume and the macro moves; the Europe/US overlap, 19:00 to 21:30 IST, is the loudest stretch of the day. Weekends are thin: bigger wicks on less size.',
+  'Network upgrades are announced on Discord and X. During the upgrade window only Post Only orders are accepted and nothing matches; TWAP slices pause.',
+  'Sessions as regimes: Asia (00:00 to 08:00 UTC) is usually the quietest. Europe (07:00 to 16:00 UTC) builds. The US cash session (from the 09:30 ET open, 14:30 UTC in winter and 13:30 in summer, to the 16:00 ET close) carries the most volume and the macro moves; the Europe/US overlap, roughly 19:00 to 22:00 IST depending on the season, is the loudest stretch of the day. Weekends are thin: bigger wicks on less size.',
   'CME is closed from Friday night to Sunday night, so bitcoin’s Monday open on CME often sits away from Friday’s close, the CME gap that traders watch.',
   'HIP-3 stock, index and commodity perps trade 24/7 while their underlyings are closed. The deployer’s oracle freezes or drifts with the book, premiums and funding build, and both snap at the underlying’s open. Do not hold one through an open unless that is the trade (Layer 8).'],
  calendar:[['Hyperliquid funding','every :00','every :30','every :30'],['Daily close, Binance/Bybit funding, Tokyo open','00:00','05:30','05:30'],['NSE India session','03:45 to 10:00','09:15 to 15:30','09:15 to 15:30'],['London open','08:00 (07:00 summer)','13:30','12:30'],['Binance/Bybit funding','08:00, 16:00','13:30, 21:30','13:30, 21:30'],['Deribit options expiry (Fridays; monthly on the last Friday)','08:00','13:30','13:30'],['US CPI and NFP (08:30 ET)','13:30 (12:30 summer)','19:00','18:00'],['NYSE open (09:30 ET)','14:30 (13:30 summer)','20:00','19:00'],['FOMC statement (14:00 ET), press conference 30 min later','19:00 (18:00 summer)','00:30 next day','23:30'],['NYSE close (16:00 ET)','21:00 (20:00 summer)','02:30 next day','01:30 next day'],['CME daily break (16:00 to 17:00 CT)','22:00 to 23:00 (21:00 to 22:00 summer)','03:30 to 04:30','02:30 to 03:30'],['CME weekly close, Friday (16:00 CT)','22:00 (21:00 summer)','03:30 Saturday','02:30 Saturday'],['CME weekly open, Sunday (17:00 CT)','23:00 (22:00 summer)','04:30 Monday','03:30 Monday']],
@@ -475,17 +577,17 @@ const LAYERS = [
  drills:['Put the calendar into your own calendar as recurring events in IST, plus this month’s CPI, NFP and FOMC dates (the Market clock page lists the next ones).','Sit through one US open and one 00:00 UTC close on the 1-minute BTC chart with the book open. Note spread and range before, during and after.','Hold a small testnet position across a Friday 08:00 UTC expiry and a weekend. Note Monday’s CME gap.'],
  pass:'For any IST time you can say which session you are in, when the next funding and the next scheduled release are, and whether US clocks are on daylight time.',
  quiz:[
-  {q:'Hyperliquid funding settles at:',o:[':00 UTC every hour','00:00, 08:00 and 16:00 UTC','08:00 UTC daily'],a:0},
-  {q:'IST is:',o:['UTC+5','UTC+5:30','UTC+4:30'],a:1},
+  {q:'Hyperliquid funding settles at:',o:['00:00, 08:00 and 16:00 UTC','08:00 UTC daily',':00 UTC every hour'],a:2},
+  {q:'IST is:',o:['UTC+5:30','UTC+4:30','UTC+5'],a:0},
   {q:'NYSE opens, in IST, during US winter time:',o:['19:00','20:00','21:00'],a:1},
-  {q:'The most watched daily candle close in crypto:',o:['00:00 UTC','00:00 ET','09:30 ET'],a:0},
+  {q:'The most watched daily candle close in crypto:',o:['00:00 ET','09:30 ET','00:00 UTC'],a:2},
   {q:'The CME Globex daily break is:',o:['16:00 to 17:00 Central Time','12:00 to 13:00 Central Time','There is none'],a:0}]},
 {id:'layer-6',n:6,name:'Reading the market',tag:'',
  goal:'Form a one-sentence thesis from the chart, the book, open interest and funding, and know what would prove it wrong.',
  surprise:'On Hyperliquid the positioning data other venues hide is public. Who is long, how levered, and where they get liquidated is on-chain, and the explorers show it.',
  concepts:[
-  'Timeframes: daily for context, 4-hour and 1-hour for structure, 5- and 15-minute for entries. The higher timeframe wins a disagreement.',
-  'Structure: higher highs and higher lows make an uptrend; the last swing low is the invalidation. Support and resistance are zones where the book got heavy before. Prior daily closes at 00:00 UTC matter most.',
+  'Timeframes: daily for context, 4-hour for structure, 1-hour for timing, 5- and 15-minute for entries. The higher timeframe wins a disagreement.',
+  'Structure: higher highs and higher lows make an uptrend; the last higher low is the invalidation. Support and resistance are zones where the book got heavy before. Prior daily closes at 00:00 UTC matter most.',
   'Volume confirms: a break on rising volume holds more often than one on thin volume. Weekend breaks are suspect.',
   'The OI matrix. Price up with OI up: new longs, a trend that is also crowding. Price up with OI down: shorts covering, fuel running out. Price down with OI up: new shorts. Price down with OI down: longs liquidating, often the end of a move. Funding tells you who is paying to stay.',
   'Liquidation levels: leveraged positions cluster at round leverage and get liquidated in clusters, so price is drawn to them. Heatmaps estimate the clusters; the trades tape and explorers show the prints.',
@@ -495,10 +597,10 @@ const LAYERS = [
  drills:['For 10 days, before the US open, write one sentence each on BTC and one alt: bias, the level that invalidates it, and what OI and funding say. Grade it at 00:00 UTC.','Classify 20 recent 1-hour moves into the four OI quadrants.','Mark the three largest liquidation clusters on BTC and watch what happens when price reaches one.'],
  pass:'Ten consecutive daily notes exist, each with a thesis and an invalidation, graded.',
  quiz:[
-  {q:'Price up and open interest up suggests:',o:['Shorts covering','New longs opening','Longs closing'],a:1},
+  {q:'Price up and open interest up suggests:',o:['New longs opening','Longs closing','Shorts covering'],a:0},
   {q:'Price down and open interest down suggests:',o:['New shorts','Longs closing or being liquidated','New longs'],a:1},
-  {q:'The 4-hour and 5-minute charts disagree. Which wins?',o:['The 5-minute','The 4-hour','Neither'],a:1},
-  {q:'On Hyperliquid, positions and liquidations are:',o:['Hidden','Public on-chain','Visible only to market makers'],a:1},
+  {q:'The 4-hour and 5-minute charts disagree. Which wins?',o:['Neither','The 5-minute','The 4-hour'],a:2},
+  {q:'On Hyperliquid, positions and liquidations are:',o:['Public on-chain','Visible only to market makers','Hidden'],a:0},
   {q:'A breakout on thin weekend volume is:',o:['More reliable','Less reliable','The same'],a:1}]},
 {id:'layer-7',n:7,name:'Plan, journal, review, psychology',tag:'Next.js',
  goal:'Trade a written plan with fixed risk, journal every trade, and review in blocks of 20. This is the production app. Everything before it was components.',
@@ -516,24 +618,24 @@ const LAYERS = [
  pass:'Two consecutive 20-trade blocks show above 90% plan adherence, whatever the PnL says.',
  quiz:[
   {q:'1R equals:',o:['1% of the account, always','The dollars at risk on that trade','The distance to target'],a:1},
-  {q:'Expectancy is judged over:',o:['One trade','Blocks of 20 trades','A calendar year'],a:1},
-  {q:'The adherence grade should be:',o:['Tied to PnL','Kept separate from PnL','Skipped on winners'],a:1},
+  {q:'Expectancy is judged over:',o:['A calendar year','One trade','Blocks of 20 trades'],a:2},
+  {q:'The adherence grade should be:',o:['Kept separate from PnL','Skipped on winners','Tied to PnL'],a:0},
   {q:'After a losing trade you:',o:['Double the size to recover','Keep the size the plan sets','Stop trading for the month'],a:1},
-  {q:'The daily stop in this plan:',o:['−3R','−10R','There is none'],a:0}]},
+  {q:'The daily stop in this plan:',o:['−10R','There is none','−3R'],a:2}]},
 {id:'layer-8',n:8,name:'The rest of Hyperliquid',tag:'',
  goal:'Know what else is on the venue and exactly when a manual trader should care.',
  surprise:'HIP-3 lets you trade US stocks, indices, oil and gold as perps at about a tenth of the main-dex fee, 24/7. The catch is that a private deployer, not the validators, runs the oracle.',
- pieces:[['Spot, HIP-1 and HIP-2','Native tokens with on-chain books; HIP-2 is a built-in liquidity strategy for new tokens','Buying HYPE for the fee discount; hedging a perp with spot; fees 0.07% / 0.04%'],['HIP-3 builder perps','Stocks, indices, commodities, FX and pre-IPO names listed by deployers (trade.xyz is the largest) with their own oracle, leverage, margin mode and fees; growth-mode taker fee about 0.005% to 0.009%','24/7 exposure to TradFi assets, but the deployer sets the oracle, can halt a market and settle it at mark, and most markets are isolated-only. Read the deployer’s own docs first'],['HIP-4 outcome markets','Yes/no markets on the same engine; fees only on close or settlement','Event trades, after Layer 7'],['HLP','The community vault that market-makes and runs backstop liquidations; deposits lock for 4 days from the last deposit; it earns a share of fees','Parking idle USDC; knowing it is the counterparty when a liquidation goes to backstop'],['User vaults','Copy a leader’s trades; legacy vaults take a profit share','Not before Layer 7'],['Staking HYPE','Delegate to validators; fee discounts from 5% at more than 10 HYPE to 40% at more than 500,000; unstaking queues for 7 days; linking to the trading account is permanent','Only if you hold HYPE anyway'],['Referrals and points','A referral code discounts your first $25M of volume; points programmes come and go','Use a code on day one; ignore points'],['Delisting','Markets can be delisted; open positions are settled','Check announcements before holding a small-cap for weeks'],['HyperEVM','The EVM side: apps, lending, bridges','Not needed to trade'],['Sub-accounts and API wallets','Separate books under one wallet; sub-accounts unlock after $100k of volume','Later, if ever']],
+ pieces:[['Spot, HIP-1 and HIP-2','Native tokens with on-chain books; HIP-2 is a built-in liquidity strategy for new tokens','Buying HYPE for the fee discount; hedging a perp with spot; fees 0.07% / 0.04%'],['HIP-3 builder perps','Stocks, indices, commodities, FX and pre-IPO names listed by deployers (trade.xyz is the largest) with their own oracle, leverage, margin mode and fees; growth-mode taker fee about 0.0045% to 0.009%','24/7 exposure to TradFi assets, but the deployer sets the oracle, can halt a market and settle it at mark, and most markets are isolated-only. Read the deployer’s own docs first'],['HIP-4 outcome markets','Yes/no markets on the same engine; fees only on close or settlement','Event trades, after Layer 7'],['HLP','The community vault that market-makes and runs backstop liquidations; deposits lock for 4 days from the last deposit; it earns a share of fees','Parking idle USDC; knowing it is the counterparty when a liquidation goes to backstop'],['User vaults','Copy a leader’s trades; legacy vaults take a profit share','Not before Layer 7'],['Staking HYPE','Delegate to validators; fee discounts from 5% at more than 10 HYPE to 40% at more than 500,000; unstaking queues for 7 days; linking to the trading account is permanent','Only if you hold HYPE anyway'],['Referrals and points','A referral code discounts your first $25M of volume; points programmes come and go','Use a code on day one; ignore points'],['Delisting','Markets can be delisted; open positions are settled','Check announcements before holding a small-cap for weeks'],['HyperEVM','The EVM side: apps, lending, bridges','Not needed to trade'],['Sub-accounts and API wallets','Separate books under one wallet; sub-accounts unlock after $100k of volume','Later, if ever']],
  concepts:[],
  read:[{t:'HIPs overview',u:D('hyperliquid-improvement-proposals-hips')},{t:'HIP-1: Native token standard',u:D('hyperliquid-improvement-proposals-hips/hip-1-native-token-standard')},{t:'HIP-2: Hyperliquidity',u:D('hyperliquid-improvement-proposals-hips/hip-2-hyperliquidity')},{t:'HIP-3: Builder-deployed perpetuals',u:D('hyperliquid-improvement-proposals-hips/hip-3-builder-deployed-perpetuals')},{t:'HIP-4: Outcome markets',u:D('hyperliquid-improvement-proposals-hips/hip-4-outcome-markets')},{t:'Vaults',u:D('hypercore/vaults')},{t:'Protocol vaults (HLP)',u:D('hypercore/vaults/protocol-vaults')},{t:'Staking',u:D('hypercore/staking')},{t:'How to stake HYPE',u:D('onboarding/how-to-stake-hype')},{t:'Referrals',u:D('referrals')},{t:'Delisting',u:D('trading/delisting')}],
  media:['skhynix','arkham'],
  drills:['Buy 1 HYPE on testnet spot and move it between the spot and perps balances.','Open a HIP-3 market such as the S&P 500 perp. Note its margin mode, maximum leverage and fee, then watch mark against oracle for an hour after the US close.'],
  pass:'You can explain to someone else what HIP-3 oracle risk is and why you learned on validator-run perps first.',
  quiz:[
-  {q:'Who runs the oracle of a HIP-3 market?',o:['The validators','The deployer','HLP'],a:1},
-  {q:'HLP deposits are locked for:',o:['1 day','4 days','30 days'],a:1},
-  {q:'A growth-mode HIP-3 taker fee is about:',o:['0.045%','0.005% to 0.009%','0.10%'],a:1},
-  {q:'A HIP-3 deployer can:',o:['Halt the market and settle positions at mark','Seize your margin directly','Change your leverage after entry'],a:0},
+  {q:'Who runs the oracle of a HIP-3 market?',o:['HLP','The validators','The deployer'],a:2},
+  {q:'HLP deposits are locked for:',o:['4 days','30 days','1 day'],a:0},
+  {q:'A growth-mode HIP-3 taker fee is about:',o:['0.045%','0.0045% to 0.009%','0.10%'],a:1},
+  {q:'A HIP-3 deployer can:',o:['Seize your margin directly','Change your leverage after entry','Halt the market and settle positions at mark'],a:2},
   {q:'The staking fee discount starts at:',o:['More than 10 HYPE, 5%','More than 1,000 HYPE, 5%','There is no discount'],a:0}]},
 {id:'layer-9',n:9,name:'Tooling (optional)',tag:'SSR',
  goal:'Make the data come to you, and automate the journal rather than the trading.',
@@ -548,11 +650,11 @@ const LAYERS = [
  drills:['One script that pulls a week of your fills and funding into a CSV with the journal’s columns.'],
  pass:'The journal fills itself and you only type the setup, the grade and the lesson.',
  quiz:[
-  {q:'The right first use of the API for a manual trader:',o:['A trading bot','Pulling your own fills into the journal','Market making'],a:1},
+  {q:'The right first use of the API for a manual trader:',o:['Pulling your own fills into the journal','Market making','A trading bot'],a:0},
   {q:'Price alerts on Hyperliquid:',o:['Built into the app','Not in the app; use TradingView alerts','Sent by email'],a:1},
-  {q:'Historical L2 book snapshots are documented on:',o:['The Historical data page','The Fees page','Nowhere'],a:0},
-  {q:'stats.hyperliquid.xyz now redirects to:',o:['Coinglass','ASXN HyperScreener','Dune'],a:1},
-  {q:'A bot automates:',o:['An edge you already have','A new edge','Luck'],a:0}]}
+  {q:'Historical L2 book snapshots are documented on:',o:['The Fees page','Nowhere','The Historical data page'],a:2},
+  {q:'stats.hyperliquid.xyz now redirects to:',o:['ASXN HyperScreener','Dune','Coinglass'],a:0},
+  {q:'A bot automates:',o:['Luck','An edge you already have','A new edge'],a:1}]}
 ];
 
 const SCHEDULE = [
@@ -635,6 +737,9 @@ function updateDbBadge(){ document.querySelectorAll('.dbmode').forEach(el=>el.te
 
 /* ============================ HELPERS ============================ */
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+/* Mini markup for lesson prose: **bold**, `code`, [text](url). Escaped first, so the data cannot inject markup. */
+function fmt(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,u)=>`<a href="${u}"${/^https?:/.test(u)?' target="_blank" rel="noopener"':''}>${t}</a>`); }
+const PAL = (typeof FigLib!=='undefined') ? FigLib.pal('css') : null;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmtMoney(x,d=2){ if(!isFinite(x)) return '—'; return (x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
@@ -717,23 +822,53 @@ function quizHtml(l){
   else { const q=l.quiz[run.i]; const p=run.picks[run.i]; const picked=p!=null; body=`<div class="qt">${run.i+1}. ${esc(q.q)}</div><div class="opts">${q.o.map((o,oi)=>`<button type="button" class="opt ${picked?(oi===q.a?'right':(oi===p?'wrong':'')):''}" ${picked?'disabled':''} data-ql="${l.id}" data-qo="${oi}"><span class="k">${['A','B','C','D'][oi]}</span><span>${esc(o)}</span></button>`).join('')}</div>${picked?`<div class="fb"><span class="msg ${p===q.a?'ok':'no'}">${p===q.a?'Correct.':'Not quite. The answer is '+['A','B','C','D'][q.a]+'.'}</span><button type="button" class="btn sm primary" data-qnext="${l.id}">${run.i===n-1?'See score':'Next question'}</button></div>`:''}`; }
   return `<div class="quiz" id="quiz-${l.id}">${secH('help','Check yourself',best!=null?`best ${best}/${n}`:'not taken')}<div class="card"><div class="dots">${dots}</div>${body}</div></div>`;
 }
+/* ---- the lesson body: sections with figures, sandboxes, takeaways and quick checks ---- */
+const live={timers:[]};
+function clearLive(){ live.timers.forEach(clearInterval); live.timers=[]; }
+const widgetCtx={ timer(fn,ms){ const id=setInterval(fn,ms); live.timers.push(id); return id; } };
+function initWidgets(){ document.querySelectorAll('[data-widget]').forEach(el=>{ const w=(window.WIDGETS||{})[el.dataset.widget]; if(w&&!el.dataset.init){ el.dataset.init='1'; try{ w.init(el,widgetCtx); }catch(e){ console.error('widget',el.dataset.widget,e); const tb=el.querySelector('.tb'); if(tb) tb.innerHTML='<p class="note">This sandbox could not start in this browser.</p>'; } } }); }
+function quickCheck(lid,s){ return `<div class="qc" data-qc="${lid}/${s.id}"><div class="qh">Quick check</div><div class="qq">${esc(s.check.q)}</div><div class="opts">${s.check.o.map((o,i)=>`<button type="button" class="opt" data-qca="${i}"><span class="k">${['A','B','C','D'][i]}</span><span>${esc(o)}</span></button>`).join('')}</div><div class="qf" hidden></div></div>`; }
+function lessonHtml(l){
+  const L=(window.LESSONS||{})[l.id]; if(!L) return '';
+  const secs=L.sections; let h='';
+  h+=`<div class="toc"><div class="toc-h">In this layer</div><ol>${secs.map(s=>`<li><a href="#${l.id}/${s.id}">${esc(s.t)}</a>${s.try?'<span class="tag p">try it</span>':''}</li>`).join('')}</ol><p class="note">Then: <a href="#${l.id}/recap">the recap</a>, <a href="#${l.id}/docs">the official docs</a>, <a href="#${l.id}/drills">the drills</a>, the pass check and <a href="#${l.id}/quiz">the quiz</a>. Reading and playing takes about ${HOURS[l.id]<=3?'an hour':'two hours'}; the drills are the rest of the time.</p></div>`;
+  h+='<div class="lsn">';
+  if(L.intro) h+=`<p class="lintro">${fmt(L.intro)}</p>`;
+  if(L.legend) h+=`<p class="legend"><span><span class="sw bid"></span>bids</span><span><span class="sw ask"></span>asks</span><span><span class="sw you"></span>you</span><span>${esc(L.legend)}</span></p>`;
+  secs.forEach((s,i)=>{
+    h+=`<section class="lsec" id="sec-${l.id}-${s.id}"><h2><span class="n">${i+1}</span><span class="ht">${esc(s.t)}</span><a class="anchor" href="#${l.id}/${s.id}" data-copy="${l.id}/${s.id}" title="Copy a link to this section" aria-label="Copy a link to this section">#</a></h2>`;
+    (s.p||[]).forEach(p=>h+=`<p>${fmt(p)}</p>`);
+    if(s.list) h+=`<ol class="steps lsteps">${s.list.map(x=>`<li><span>${fmt(x)}</span></li>`).join('')}</ol>`;
+    (s.p2||[]).forEach(p=>h+=`<p>${fmt(p)}</p>`);
+    if(s.code) h+=`<pre class="codeblock"><code>${esc(s.code)}</code></pre>`;
+    if(s.fig&&window.FIG&&FIG[s.fig]) h+=`<figure class="fig"><div class="fw">${FIG[s.fig](PAL)}</div>${s.cap?`<figcaption>${fmt(s.cap)}</figcaption>`:''}</figure>`;
+    if(s.ex) h+=`<div class="callout"><span class="k">Example</span><span class="b">${fmt(s.ex)}</span></div>`;
+    if(s.try){ const W=(window.WIDGETS||{})[s.try]; if(W){ const wid='w-'+l.id+'-'+s.try; h+=`<div class="try" data-widget="${s.try}" id="${wid}"><div class="th"><span class="tag p">Try it</span><span>${esc(W.title)}</span></div><div class="tb">${W.html(wid)}</div>${s.tryNote?`<p class="tn">${fmt(s.tryNote)}</p>`:''}</div>`; } else if(s.figDocs&&window.FIG&&FIG[s.figDocs]) h+=`<figure class="fig"><div class="fw">${FIG[s.figDocs](PAL)}</div></figure>`; }
+    if(s.key) h+=`<p class="key">${fmt(s.key)}</p>`;
+    if(s.check) h+=quickCheck(l.id,s);
+    h+='</section>';
+  });
+  h+='</div>';
+  return h;
+}
 function renderLayer(l){
-  const p=layerProgress(l); const idx=LAYERS.indexOf(l); const prev=LAYERS[idx-1], next=LAYERS[idx+1];
+  const p=layerProgress(l); const idx=LAYERS.indexOf(l); const prev=LAYERS[idx-1], next=LAYERS[idx+1]; const hasLesson=!!((window.LESSONS||{})[l.id]);
   let h=`<div class="lesson"><div class="top"><span class="tag p">Layer ${l.n} of ${LAYERS.length}</span>${l.tag?`<span class="tag">the ${esc(l.tag)} of the stack</span>`:''}<span class="tag">about ${HOURS[l.id]} h</span>${p.pct===100?'<span class="tag ok">complete</span>':''}</div><h1>${esc(l.name)}</h1><p class="lead">${esc(l.goal)}</p><div class="lp"><div class="bar"><i style="width:${p.pct}%"></i></div><span>${p.done} of ${p.total} complete</span></div></div>`;
   h+=`<div class="callout"><span class="k">The surprise</span><span class="b">${esc(l.surprise)}</span></div>`;
   if(l.intro) h+=`<p>${esc(l.intro)}</p>`;
-  if(l.setup){ h+=`<div class="sec">${secH('list','Setup, once')}<div class="card"><ol class="steps">${l.setup.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol></div></div>`; }
-  if(l.orders){ h+=`<div class="sec">${secH('list','Order types',l.orders.length+' types')}<div class="tw"><table><thead><tr><th>Type</th><th>What it does</th><th>The rule to remember</th></tr></thead><tbody>${l.orders.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div></div>`; }
-  if(l.fees) h+=`<div class="sec">${secH('target','Fees')}<div class="card">${esc(l.fees)}</div></div>`;
-  if(l.concepts.length){ h+=`<div class="sec">${secH('list','Concepts, in order',l.concepts.length+' ideas')}<div class="card"><ol class="steps">${l.concepts.map(c=>`<li><span>${esc(c)}</span></li>`).join('')}</ol></div></div>`; }
+  h+=lessonHtml(l);
+  if(l.setup){ h+=`<div class="sec" id="sec-${l.id}-setup">${secH('list','Setup, once')}<div class="card"><ol class="steps">${l.setup.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol></div></div>`; }
+  if(l.orders){ h+=`<div class="sec" id="sec-${l.id}-orders">${secH('list','Order types, as a table',l.orders.length+' types')}<div class="tw"><table><thead><tr><th>Type</th><th>What it does</th><th>The rule to remember</th></tr></thead><tbody>${l.orders.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div></div>`; }
+  if(l.fees) h+=`<div class="sec" id="sec-${l.id}-fees">${secH('target','Fees, in one paragraph')}<div class="card">${esc(l.fees)}</div></div>`;
+  if(l.concepts.length){ h+=`<div class="sec" id="sec-${l.id}-recap">${secH('list',hasLesson?'Recap: the ideas in one line each':'Concepts, in order',l.concepts.length+' ideas')}${hasLesson?'<p class="note recap-note">The same ideas as the lesson above, compressed. Come back to this list when you need the numbers.</p>':''}<div class="card"><ol class="steps">${l.concepts.map(c=>`<li><span>${esc(c)}</span></li>`).join('')}</ol></div></div>`; }
   if(l.example) h+=`<div class="callout"><span class="k">Example</span><span class="b">${esc(l.example)}</span></div>`;
-  if(l.calendar){ h+=`<div class="sec">${secH('clock','Calendar in IST')}<div class="tw"><table><thead><tr><th>Event</th><th>UTC</th><th>IST, Nov to Mar</th><th>IST, Mar to Nov</th></tr></thead><tbody>${l.calendar.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td><td class="num">${esc(r[2])}</td><td class="num">${esc(r[3])}</td></tr>`).join('')}</tbody></table></div><p class="note">The <a href="#clock">Market clock</a> computes all of this live, with the next CPI, payrolls and FOMC dates.</p></div>`; }
-  if(l.pieces){ h+=`<div class="sec">${secH('list','What else is on the venue')}<div class="tw"><table><thead><tr><th>Piece</th><th>What it is</th><th>When it matters to you</th></tr></thead><tbody>${l.pieces.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div></div>`; }
-  h+=`<div class="sec">${secH('doc','Read the official docs',l.read.length+' pages')}<div class="links">${l.read.map(r=>`<a class="link" href="${r.u}" target="_blank" rel="noopener"><span class="ic">${ICONS.doc}</span><span>${esc(r.t)}<small>hyperliquid.gitbook.io</small></span></a>`).join('')}</div></div>`;
-  if(l.media.length){ h+=`<div class="sec">${secH('play','Media for this layer',l.media.length+' items')}<div class="media">${l.media.map(mediaCard).join('')}</div></div>`; }
-  h+=`<div class="sec">${secH('check','Do',l.drills.filter((_,i)=>state.items[l.id+'-d'+i]).length+'/'+l.drills.length+' done')}<div class="card" style="padding:6px">${l.drills.map((d,i)=>checkRow(l.id+'-d'+i,d)).join('')}</div></div>`;
-  h+=`<div class="card passcard"><span class="k">Passed when</span><div>${esc(l.pass)}</div><div style="padding:0;margin:4px -8px -6px">${checkRow(l.id+'-pass','I can do this, honestly, without looking.')}</div></div>`;
-  h+=quizHtml(l);
+  if(l.calendar){ h+=`<div class="sec" id="sec-${l.id}-calendar">${secH('clock','Calendar in IST')}<div class="tw"><table><thead><tr><th>Event</th><th>UTC</th><th>IST, Nov to Mar</th><th>IST, Mar to Nov</th></tr></thead><tbody>${l.calendar.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td><td class="num">${esc(r[2])}</td><td class="num">${esc(r[3])}</td></tr>`).join('')}</tbody></table></div><p class="note">The <a href="#clock">Market clock</a> computes all of this live, with the next CPI, payrolls and FOMC dates.</p></div>`; }
+  if(l.pieces){ h+=`<div class="sec" id="sec-${l.id}-pieces">${secH('list','What else is on the venue, as a table')}<div class="tw"><table><thead><tr><th>Piece</th><th>What it is</th><th>When it matters to you</th></tr></thead><tbody>${l.pieces.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div></div>`; }
+  h+=`<div class="sec" id="sec-${l.id}-docs">${secH('doc','Read the official docs',l.read.length+' pages')}<div class="links">${l.read.map(r=>`<a class="link" href="${r.u}" target="_blank" rel="noopener"><span class="ic">${ICONS.doc}</span><span>${esc(r.t)}<small>hyperliquid.gitbook.io</small></span></a>`).join('')}</div></div>`;
+  if(l.media.length){ h+=`<div class="sec" id="sec-${l.id}-media">${secH('play','Media for this layer',l.media.length+' items')}<div class="media">${l.media.map(mediaCard).join('')}</div></div>`; }
+  h+=`<div class="sec" id="sec-${l.id}-drills">${secH('check','Do',l.drills.filter((_,i)=>state.items[l.id+'-d'+i]).length+'/'+l.drills.length+' done')}<div class="card" style="padding:6px">${l.drills.map((d,i)=>checkRow(l.id+'-d'+i,d)).join('')}</div></div>`;
+  h+=`<div class="card passcard" id="sec-${l.id}-pass"><span class="k">Passed when</span><div>${esc(l.pass)}</div><div style="padding:0;margin:4px -8px -6px">${checkRow(l.id+'-pass','I can do this, honestly, without looking.')}</div></div>`;
+  h+=`<div id="sec-${l.id}-quiz">${quizHtml(l)}</div>`;
   h+=`<div class="footnav"><span>${prev?`<a class="btn" href="#${prev.id}">← Layer ${prev.n}: ${esc(prev.name)}</a>`:'<a class="btn" href="#overview">← Overview</a>'}</span><span>${next?`<a class="btn primary" href="#${next.id}">Layer ${next.n}: ${esc(next.name)} →</a>`:'<a class="btn primary" href="#journal">Open the journal →</a>'}</span></div>`;
   return h;
 }
@@ -742,7 +877,7 @@ function renderOverview(){
   const perfect=LAYERS.filter(l=>state.quiz[l.id]===l.quiz.length).length; const weeks=SCHEDULE.filter(r=>state.items['week-'+r[0]]).length;
   const closed=state.journal.filter(t=>Number.isFinite(t.r)); const last20=closed.slice(0,20); const exp=last20.length?last20.reduce((a,t)=>a+t.r,0)/last20.length:NaN; const adh=last20.length?last20.filter(t=>t.grade==='A').length/last20.length*100:NaN;
   const now=new Date();
-  return `<section class="hero"><div><span class="eyebrow">Self-paced course · 10 layers · about 8 weeks</span><h1>Become a manual perps trader on Hyperliquid</h1><p>Ten layers, each a skill the next one assumes, the way HTML comes before CSS and React before Next.js. Layer 0 is the order book. Layer 7 is you trading a written plan with a journal. Every drill runs on testnet until the schedule says otherwise.</p><div class="cta">${nl?`<a class="btn primary" href="#${nl.id}">${cp.done?'Continue':'Start'} Layer ${nl.n}: ${esc(nl.name)} →</a>`:'<a class="btn primary" href="#journal">All layers complete. Open the journal →</a>'}<a class="btn" href="#clock">Market clock</a></div></div><div class="ringwrap">${ring(cp.pct,132,11)}<span class="lbl">course progress</span></div></section>
+  return `<section class="hero"><div><span class="eyebrow">Self-paced course · 10 layers · about 8 weeks</span><h1>Become a manual perps trader on Hyperliquid</h1><p>Ten layers, each a skill the next one assumes, the way HTML comes before CSS and React before Next.js. Layer 0 is the order book. Layer 7 is you trading a written plan with a journal. Each layer is a short illustrated lesson with sandboxes to play in, then drills that run on testnet until the schedule says otherwise.</p><div class="cta">${nl?`<a class="btn primary" href="#${nl.id}">${cp.done?'Continue':'Start'} Layer ${nl.n}: ${esc(nl.name)} →</a>`:'<a class="btn primary" href="#journal">All layers complete. Open the journal →</a>'}<a class="btn" href="#clock">Market clock</a></div></div><div class="ringwrap">${ring(cp.pct,132,11)}<span class="lbl">course progress</span></div></section>
   <div class="tiles">
     <div class="tile"><span class="l">Drills done</span><span class="v">${drills}<span class="muted" style="font-size:.9rem"> / ${drillsT}</span></span><div class="bar thin"><i style="width:${drillsT?drills/drillsT*100:0}%"></i></div></div>
     <div class="tile"><span class="l">Quizzes at full marks</span><span class="v">${perfect}<span class="muted" style="font-size:.9rem"> / ${LAYERS.length}</span></span><div class="bar thin"><i style="width:${perfect/LAYERS.length*100}%"></i></div></div>
@@ -750,7 +885,8 @@ function renderOverview(){
     <div class="tile"><span class="l">Expectancy, last ${last20.length||20} trades</span><span class="v">${last20.length?(exp>=0?'+':'')+exp.toFixed(2)+'R':'—'}</span><span class="note">${last20.length?`adherence ${adh.toFixed(0)}%`:'journal from Layer 7'}</span></div>
   </div>
   <div class="sec">${secH('target','Your path')}<ol class="path">${LAYERS.map(l=>{ const p=layerProgress(l); const isNext=nl&&nl.id===l.id; return `<li><a class="pathcard ${p.pct===100?'done':''} ${isNext?'next':''}" href="#${l.id}"><span class="n">${p.pct===100?ICONS.check.replace('<svg','<svg width="20" height="20"'):l.n}</span><span><span class="t">${esc(l.name)}${l.tag?`<span class="tag">${esc(l.tag)}</span>`:''}</span><span class="g">${esc(l.goal)}</span><span class="m"><span class="bar thin"><i style="width:${p.pct}%"></i></span><span>${p.done}/${p.total} · ~${HOURS[l.id]} h</span></span></span><span class="st">${p.pct===100?'<span class="tag ok">done</span>':(isNext?'<span class="tag p">up next</span>':(p.done>0?'<span class="tag info">in progress</span>':'<span class="tag">not started</span>'))}</span></a></li>`; }).join('')}</ol></div>
-  <div class="sec">${secH('list','How each layer works')}<div class="card"><ol class="steps"><li><span><b>Goal</b>: what you can do afterwards, and <b>the surprise</b>: the one thing in the layer that changes how you trade.</span></li><li><span><b>Concepts</b> in order, with the exact numbers from the Hyperliquid docs opened on ${VERIFIED_ON}.</span></li><li><span><b>Read</b>: official docs first, then the vetted media for that layer.</span></li><li><span><b>Do</b>: drills on testnet, ticked here and saved. <b>Passed when</b>: a concrete self-check. <b>Check yourself</b>: five questions, one at a time; full marks completes the layer.</span></li></ol></div></div>
+  <div class="sec">${secH('list','How each layer works')}<div class="card"><ol class="steps"><li><span><b>Goal</b>: what you can do afterwards, and <b>the surprise</b>: the one thing in the layer that changes how you trade.</span></li><li><span><b>The lesson</b>: short numbered sections that build the idea from zero, each with a figure or a sandbox you can play with, a one-line takeaway and often a quick check. Then a <b>recap</b> with the exact numbers from the Hyperliquid docs opened on ${VERIFIED_ON}.</span></li><li><span><b>Read</b>: official docs first, then the vetted media for that layer.</span></li><li><span><b>Do</b>: drills on testnet, ticked here and saved. <b>Passed when</b>: a concrete self-check. <b>Check yourself</b>: five questions, one at a time; full marks completes the layer.</span></li></ol></div></div>
+  <div class="sec">${secH('list','Before your first drill: setup, once')}<div class="card"><ol class="steps">${LAYERS[2].setup.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol><p class="note" style="margin:10px 0 0">Layers 0 and 1 can be read without any of this; their drills cannot. The same list, with links, is in <a href="#layer-2/setup">Layer 2</a>.</p></div></div>
   <p class="note">Right now: ${sessionLabel(now)}. Next Hyperliquid funding in <b class="num">${countdown(nextTopOfHour(now)-now)}</b>; US clocks on ${usDst(now).toLowerCase()}. <span class="dbmode">${dbText()}</span></p>
   <p class="note">Ground rules: official docs win over any explainer; exchange clocks are UTC and you are in IST; journal from the first testnet order. The <a href="#noise">Noise filter</a> explains what was left out of the media track and why. The prose curriculum, the media track and the research notes are in the public repository <a href="https://github.com/abilashsenth/Hyperliquid-Bootcamp" target="_blank" rel="noopener">abilashsenth/Hyperliquid-Bootcamp</a>, which also hosts this page.</p>`;
 }
@@ -849,14 +985,18 @@ function renderSources(){
   <div class="sec">${secH('check','Method')}<div class="card"><p class="small" style="margin:0">About 25 web searches and 60 page fetches on ${VERIFIED_ON}: founder interviews and podcasts, mechanism research on HLP, funding and liquidations, trading psychology sources, Hyperliquid analytics tools, YouTube tutorials, session and time-of-day studies, and the two incident post-mortems. Everything rejected is listed on the <a href="#noise">Noise filter</a> page with the reason.</p></div></div>`;
 }
 function renderCurrent(scroll){
+  clearLive();
   const c=document.getElementById('content'); let html=''; const l=LAYERS.find(x=>x.id===current);
   if(l) html=renderLayer(l); else if(current==='media') html=renderMedia(); else if(current==='noise') html=renderNoise(); else if(current==='clock') html=renderClock(); else if(current==='tools') html=renderTools(); else if(current==='journal') html=renderJournal(); else if(current==='schedule') html=renderSchedule(); else if(current==='glossary') html=renderGlossary(); else if(current==='sources') html=renderSources(); else html=renderOverview();
   c.innerHTML=html;
   if(current==='clock') renderClockLive(); if(current==='tools') calcTools(); if(current==='journal') journalPreview();
+  initWidgets();
   updateNav(); updateTop(); if(scroll) window.scrollTo({top:0});
 }
+function scrollToSlug(){ if(!currentSlug) return; const el=document.getElementById('sec-'+current+'-'+currentSlug); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); } }
 function rerenderQuiz(l){ const el=document.getElementById('quiz-'+l.id); if(el){ const tmp=document.createElement('div'); tmp.innerHTML=quizHtml(l); el.replaceWith(tmp.firstElementChild); } }
-function route(){ const h=(location.hash||'#overview').slice(1); current=VIEWS.some(v=>v.id===h)?h:'overview'; renderCurrent(true); }
+let currentSlug='';
+function route(){ const raw=decodeURIComponent((location.hash||'#overview').slice(1)); const parts=raw.split('/'); const view=VIEWS.some(v=>v.id===parts[0])?parts[0]:'overview'; const same=(view===current)&&document.getElementById('content').childElementCount>0; current=view; currentSlug=parts[1]||''; if(!same) renderCurrent(!currentSlug); if(currentSlug) setTimeout(scrollToSlug,same?0:30); else if(same) window.scrollTo({top:0,behavior:'smooth'}); }
 
 /* ============================ EVENTS ============================ */
 document.addEventListener('change',e=>{
@@ -867,7 +1007,9 @@ document.addEventListener('change',e=>{
 document.addEventListener('input',e=>{ if(e.target.closest('#f-size,#f-liq,#f-fund,#f-fee,#f-exp')) calcTools(); if(e.target.closest('#f-j')) journalPreview(); });
 document.addEventListener('submit',e=>{ e.preventDefault(); if(e.target.id==='f-j') saveTrade(); });
 document.addEventListener('click',e=>{
+  const an=e.target.closest('a.anchor'); if(an){ const url=location.href.split('#')[0]+'#'+an.dataset.copy; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(()=>toast('Link copied')).catch(()=>{}); }
   const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.qca!=null&&b.closest('.qc')){ const qc=b.closest('.qc'); if(qc.dataset.done) return; qc.dataset.done='1'; const [lid,slug]=qc.dataset.qc.split('/'); const sec=(((window.LESSONS||{})[lid]||{}).sections||[]).find(s=>s.id===slug); if(!sec) return; const pick=+b.dataset.qca, ans=sec.check.a; qc.querySelectorAll('.opt').forEach((o,i)=>{ o.disabled=true; if(i===ans) o.classList.add('right'); else if(i===pick) o.classList.add('wrong'); }); const f=qc.querySelector('.qf'); f.hidden=false; f.innerHTML=(pick===ans?'<b>Right.</b> ':'<b>Not quite.</b> The answer is '+['A','B','C','D'][ans]+'. ')+fmt(sec.check.why||''); return; }
   if(b.dataset.f){ mediaFilter=b.dataset.f; renderCurrent(); return; }
   if(b.dataset.del){ if(b.classList.contains('arm')){ deleteTrade(b.dataset.del); } else { b.classList.add('arm'); b.textContent='confirm delete'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='delete'; },3000); } return; }
   if(b.dataset.ql){ const l=LAYERS.find(x=>x.id===b.dataset.ql); const run=quizRun[l.id]; if(run.picks[run.i]!=null) return; run.picks[run.i]=+b.dataset.qo; rerenderQuiz(l); return; }

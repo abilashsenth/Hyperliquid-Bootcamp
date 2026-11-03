@@ -78,6 +78,11 @@ Base: https://hyperliquid.gitbook.io/hyperliquid-docs/
 - X handles and the Discord invite: X blocks automated reads; verify from the links in app.hyperliquid.xyz.
 - The Mark Douglas seminar's exact video IDs; the media track links a YouTube search for the exact title.
 
+## Live data used in the lessons
+
+- The sample BTC order book in Layer 0 (best bid 77,249, best ask 77,250) is a tidied snapshot from the public info API (`POST https://api.hyperliquid.xyz/info` with type `l2Book`) taken on 3 November 2026.
+- The size decimals and maximum leverage in the tick-and-lot checker and the Layer 4 sandboxes (BTC 5 decimals and 40x, ETH 4 and 25x, SOL 2 and 20x, HYPE 2 and 10x, DOGE and XRP 0) came from the same API with type `meta`, the same day.
+
 ## Method
 
 About 25 web searches and 60 page fetches on 3 November 2026: founder interviews and podcasts, mechanism research on HLP, funding and liquidations, trading psychology sources, Hyperliquid analytics tools, YouTube tutorials, session and time-of-day studies, and the two incident post-mortems (JELLY, March 2025; SK Hynix HIP-3 oracle, July 2026). Everything rejected is listed in `noise-filter.md` with the reason.
