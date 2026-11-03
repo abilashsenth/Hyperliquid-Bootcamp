@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A ten-layer manual perps-trading curriculum for Hyperliquid with a live market clock, calculators built on the docs' formulas, a vetted media track, quizzes and a trade journal.">
+<title>Hyperliquid Workbench</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>
+/* Layout: a fixed left rail of layers (the stack), a content column of ~72ch, a live clock strip on top. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#141a21; --muted:#5d6974; --line:#d7dee5; --chip:#e9eef2;
+  --accent:#1d6f8c; --accent-ink:#ffffff; --accent-soft:#e1eff4;
+  --good:#1e8a4c; --warn:#a9711a; --bad:#bb3a2f;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151c24; --ink:#e4ebf2; --muted:#97a5b3; --line:#28323d; --chip:#1e2730;
+    --accent:#56b4d8; --accent-ink:#0b1016; --accent-soft:#15303b;
+    --good:#4cc47f; --warn:#d9a441; --bad:#e2665a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151c24; --ink:#e4ebf2; --muted:#97a5b3; --line:#28323d; --chip:#1e2730;
+  --accent:#56b4d8; --accent-ink:#0b1016; --accent-soft:#15303b;
+  --good:#4cc47f; --warn:#d9a441; --bad:#e2665a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--accent)}
+h1,h2,h3,h4{line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:1.5rem;font-weight:600}
+h2{font-size:1.35rem;font-weight:600;margin-top:.25rem}
+h3{font-size:1.05rem;font-weight:600;margin-top:1.6rem;margin-bottom:.5rem}
+h4{font-size:.95rem;font-weight:600;margin-top:1.1rem;margin-bottom:.35rem}
+p{margin:.55rem 0}
+ul,ol{margin:.4rem 0 .4rem 1.2rem;padding:0}
+li{margin:.3rem 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:18px 14px 24px 0;border-right:1px solid var(--line)}
+.brand{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+.brand .sub{color:var(--muted);font-size:.8rem}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;color:var(--ink);border:0;font-size:.9rem}
+.nav a:hover{background:var(--chip)}
+.nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav .k{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-width:1.6em}
+.nav a.active .k{color:var(--accent)}
+.nav .bar{margin-left:auto;width:34px;height:4px;border-radius:2px;background:var(--chip);overflow:hidden}
+.nav .bar i{display:block;height:100%;background:var(--good);width:0}
+.nav .sep{margin:10px 8px 4px;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.main{min-width:0;padding:0 0 60px 28px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.clockstrip{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:baseline;font-size:.85rem}
+.clockstrip b{font-weight:600}
+.clockstrip .lab{color:var(--muted);margin-right:4px}
+.content{max-width:76ch;padding-top:22px}
+.view[hidden]{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+.card.tight{padding:12px 14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--mono);font-size:1.25rem;font-weight:500;font-variant-numeric:tabular-nums}
+.stat .l{color:var(--muted);font-size:.78rem}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:600;letter-spacing:.02em;background:var(--chip);color:var(--muted);vertical-align:middle}
+.pill.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+.tw{overflow-x:auto;margin:.6rem 0}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.check{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+.check:last-child{border-bottom:0}
+.check input{margin-top:4px;flex:none;width:16px;height:16px;accent-color:var(--good)}
+.check label{cursor:pointer}
+.check.done label{color:var(--muted);text-decoration:line-through}
+.surprise{border-left:3px solid var(--accent);padding:4px 12px;margin:10px 0;color:var(--ink)}
+.goal{font-size:1.02rem}
+.pass{background:var(--accent-soft);border-radius:8px;padding:10px 14px;margin-top:14px}
+.media{display:flex;flex-direction:column;gap:10px}
+.mcard{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.mtype{font-family:var(--mono);font-size:.7rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:var(--chip);color:var(--muted);white-space:nowrap;margin-top:2px}
+.mtype.video{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.mtype.podcast,.mtype.interview{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.mtype.research,.mtype.article,.mtype.case{background:var(--accent-soft);color:var(--accent)}
+.mtype.tool,.mtype.calendar{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.mcard .t{font-weight:600}
+.mcard .by{color:var(--muted);font-size:.85rem}
+.mcard .why{margin:.3rem 0 0}
+.mcard .flags{margin-top:.35rem;display:flex;flex-wrap:wrap;gap:6px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.filters button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:4px 10px;font:inherit;font-size:.82rem;cursor:pointer}
+.filters button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.quiz{margin-top:8px}
+.q{padding:10px 0;border-top:1px solid var(--line)}
+.q .qt{font-weight:500}
+.opts{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.opts button{text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;padding:7px 10px;font:inherit;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+.opts button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
+.opts button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.opts button:disabled{cursor:default}
+.qscore{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 12px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted);min-width:0}
+.form input,.form select,.form textarea{font:inherit;font-size:.92rem;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);width:100%;min-width:0}
+.form textarea{min-height:60px;resize:vertical}
+.form .wide{grid-column:1/-1}
+.btn{font:inherit;font-size:.9rem;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{background:transparent;color:var(--bad);border-color:var(--bad)}
+.btn:focus-visible,.opts button:focus-visible,.filters button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.out{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.9rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px 14px;margin-top:10px}
+.out div b{font-weight:500;color:var(--muted);display:block;font-family:var(--sans);font-size:.75rem}
+.note{color:var(--muted);font-size:.85rem}
+.ev{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.ev:last-child{border-bottom:0}
+.ev .in{font-family:var(--mono);color:var(--muted);font-size:.82rem;white-space:nowrap}
+.ev .at{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.status{display:inline-flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot.on{background:var(--good)} .dot.off{background:var(--bad)} .dot.brk{background:var(--warn)}
+.jrow{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.jrow .d{font-family:var(--mono);color:var(--muted);font-size:.8rem;white-space:nowrap}
+.jrow .r{font-family:var(--mono);font-weight:500;white-space:nowrap}
+.jrow .r.pos{color:var(--good)} .jrow .r.neg{color:var(--bad)}
+.jrow .meta{color:var(--muted);font-size:.82rem}
+.jrow .x{font:inherit;font-size:.78rem;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.jrow .x.arm{color:var(--bad);font-weight:600}
+.empty{color:var(--muted);padding:14px;border:1px dashed var(--line);border-radius:8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem}
+.kv b{font-weight:500;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+.stack{display:flex;flex-direction:column-reverse;gap:4px;margin:12px 0}
+.stack a{display:grid;grid-template-columns:2.2em 1fr auto;gap:10px;align-items:center;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink)}
+.stack a:hover{border-color:var(--accent)}
+.stack .k{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.stack .pct{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.stack a.full{border-color:var(--good)}
+.stack a.full .pct{color:var(--good)}
+.small{font-size:.85rem}
+.srcnote{font-size:.8rem;color:var(--muted);margin-top:.25rem}
+@media (max-width: 900px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 0 10px}
+  .nav{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding-bottom:6px}
+  .nav a{white-space:nowrap;flex:none}
+  .nav .bar{display:none}
+  .nav .sep{display:none}
+  .main{padding-left:0}
+  .clockstrip{position:static}
+}
+@media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <h1>Hyperliquid Workbench</h1>
+      <span class="sub">Manual perps trading, one layer at a time</span>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="clockstrip" id="strip">
+      <span><span class="lab">UTC</span><b class="num" id="s-utc">--:--:--</b></span>
+      <span><span class="lab">IST</span><b class="num" id="s-ist">--:--:--</b></span>
+      <span><span class="lab">Funding in</span><b class="num" id="s-fund">--:--</b></span>
+      <span><span class="lab">Session</span><b id="s-sess">--</b></span>
+      <span><span class="lab">US clocks</span><b id="s-dst">--</b></span>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================ DATA ============================ */
+const DOCS = 'https://hyperliquid.gitbook.io/hyperliquid-docs/';
+const D = p => DOCS + p;
+const VERIFIED_ON = '3 Nov 2026';
+
+const MEDIA = {
+  thiccy:{type:'article',t:'Perpetuals 101',by:'Thiccy (Substack), Jun 2023, 4 min',u:'https://thiccy.substack.com/p/perpetuals-101',v:'opened',why:'The cleanest short explanation of why a perp needs funding and how basis arbitrage pulls it back to the index. Read it before the Hyperliquid docs, then read the docs for the exact formulas.',flags:['No promotion, no paywall','One worked example has a $5 vs $1 typo; the logic is right']},
+  oddlots:{type:'podcast',t:'Jeff Yan on how Hyperliquid works, Bloomberg Odd Lots',by:'Joe Weisenthal and Tracy Alloway, 15 Oct 2026',u:'https://podscripts.co/podcasts/odd-lots/jeff-yans-plan-to-bring-the-entire-financial-industry-onto-hyperliquid',v:'opened',why:'The founder explaining the order book, collateral, oracle-tracked contracts, funding and the validator set to a non-crypto audience. The best single hour of context for Layers 1 to 3.',flags:['Transcript link; the audio is on any podcast app under Odd Lots','Also on Bloomberg video, same date']},
+  wublock:{type:'interview',t:'Exclusive interview with Hyperliquid founder Jeff',by:'WuBlockchain (Colin Wu), 17 Aug 2025, text',u:'https://wublock.substack.com/p/exclusive-interview-with-hyperliquid',v:'opened',why:'Why the team is small, why there was no venture or market-maker deal, and why the core is meant to run itself. Explains the design choices you will trade against.',flags:['Free, no paywall seen']},
+  empire:{type:'podcast',t:'Jeff Yan on Hyperliquid’s plan to bring all finance onchain, Empire',by:'Blockworks, 7 Oct 2026, about 30 min',u:'https://blockworks.com/podcast/empire/bc375300-c276-11f1-925c-cbee0c7ea3ff',v:'opened',why:'Institutional access, the cost of speed, options and whether transparent books give better execution. Listen after Odd Lots if you want the builder-side view.',flags:['Episode page carries conference discount codes; no product pitch in the content']},
+  glassnode:{type:'research',t:'Inferring leveraged positioning from price and open interest',by:'Frederik Theissen, Glassnode Research, 3 Jul 2025, 8 min',u:'https://research.glassnode.com/leverage-position-openings-and-closures',v:'opened',why:'The OI matrix in Layer 6, done properly: long openings, long closures, short openings, short closures, with the caveats (short-side signals are weaker, the metric lags intraday). Free.',flags:['No paywall; newsletter prompt only']},
+  arkham:{type:'case',t:'JELLYJELLY exploit on Hyperliquid',by:'Arkham Research, 26 Mar 2025',u:'https://info.arkm.com/research/jellyjelly-exploit-on-hyperliquid',v:'opened',why:'The forensic account of a self-liquidation attack: three accounts, a $4.1M short pushed onto HLP, and a delisting that settled everything at one price. The case study for how backstop liquidations and HLP exposure actually work.',flags:['Ends with a sign-up call to action; the research itself is the primary source']},
+  skhynix:{type:'case',t:'Hyperliquid explains $57M SK Hynix perp liquidations after oracle anomaly',by:'BeInCrypto via Yahoo Finance, 28 Jul 2026',u:'https://finance.yahoo.com/markets/crypto/articles/hyperliquid-explains-57-million-sk-114320781.html',v:'opened',why:'A HIP-3 deployer’s oracle took a thin pre-market print and liquidated 960 long accounts while the stock itself barely moved. The case study for deployer-oracle risk in Layer 8.',flags:['News report; no post-mortem from the deployer was published']},
+  k33:{type:'research',t:'Trading activity in bitcoin far higher during U.S. trading hours',by:'Vetle Lunde, K33 Research, 18 Jan 2022',u:'https://k33.com/research/archive/articles/trading-activity-in-bitcoin-far-higher-during-us-trading-hours',v:'opened',why:'Numbers behind the session map: US cash hours are under 30% of the day but carried 36% to 43% of spot volume, and about 40% even on weekends. Old, but the shape has not changed.',flags:['No promotion']},
+  arxiv:{type:'research',t:'Intraday patterns in crypto: activity, volatility and spreads follow US hours',by:'arXiv 2109.12142 (academic paper, 2021)',u:'https://arxiv.org/pdf/2109.12142v2.pdf',v:'listed',why:'Academic confirmation that the highest activity, highest volatility and lowest spreads on US exchanges coincide with US market hours, and that European venues follow their own local time.',flags:['Seen in search results, not opened today']},
+  fomc:{type:'calendar',t:'FOMC meeting calendar',by:'Federal Reserve',u:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',v:'opened',why:'Statement at 14:00 ET on the second day, press conference 30 minutes later. The 2026 and 2027 dates are loaded into the market clock.',flags:[]},
+  cpi:{type:'calendar',t:'CPI release schedule',by:'US Bureau of Labor Statistics',u:'https://www.bls.gov/schedule/news_release/cpi.htm',v:'opened',why:'08:30 ET. Loaded into the market clock through Dec 2027.',flags:[]},
+  nfp:{type:'calendar',t:'Employment Situation (nonfarm payrolls) schedule',by:'US Bureau of Labor Statistics',u:'https://www.bls.gov/schedule/news_release/empsit.htm',v:'opened',why:'08:30 ET, usually the first Friday. Loaded into the market clock through Dec 2027.',flags:[]},
+  nyse:{type:'calendar',t:'NYSE hours and holidays',by:'NYSE',u:'https://www.nyse.com/markets/hours-calendars',v:'opened',why:'Core session 09:30 to 16:00 ET; the holiday list is what the market clock does not model.',flags:[]},
+  cme:{type:'calendar',t:'CME Globex trading hours',by:'CME Group',u:'https://www.cmegroup.com/trading-hours.html',v:'memory',why:'Equity index and bitcoin futures: Sunday 17:00 CT to Friday 16:00 CT with a daily 16:00 to 17:00 CT break. The source of the CME gap.',flags:['Page timed out twice today; hours stated from the standard schedule']},
+  ff:{type:'calendar',t:'Economic calendar',by:'ForexFactory',u:'https://www.forexfactory.com/calendar',v:'memory',why:'Set the timezone to IST once and it shows every scheduled release in your clock. Ignore its forums.',flags:['Not opened today']},
+  cg_fund:{type:'tool',t:'Funding rates across exchanges',by:'Coinglass',u:'https://www.coinglass.com/FundingRate',v:'opened',why:'The same coin on Hyperliquid, Binance, Bybit and OKX side by side. The comparison is the intuition for Layer 3.',flags:['Basic view is free; Pro and API upsells exist']},
+  cg_hl:{type:'tool',t:'Hyperliquid whale tracker',by:'Coinglass',u:'https://www.coinglass.com/hyperliquid',v:'opened',why:'Large Hyperliquid positions, long/short ratios, unrealized PnL and funding paid, read straight from the chain.',flags:['Login prompts and Pro tier; the public view works']},
+  cg_liq:{type:'tool',t:'Liquidation heatmap',by:'Coinglass',u:'https://www.coinglass.com/pro/futures/LiquidationHeatMap',v:'opened',why:'Estimated clusters of liquidation levels. Treat it as a map of where stops sit, not a prediction.',flags:['Pro tier for some settings']},
+  hypurrscan:{type:'tool',t:'Hypurrscan',by:'Community explorer',u:'https://hypurrscan.io',v:'opened',why:'Address-level positions, fills, vaults and liquidations on Hyperliquid. Free. Use it to see who is on the other side of a move.',flags:['Labelled beta']},
+  hyperdash:{type:'tool',t:'Hyperdash',by:'Community analytics',u:'https://hyperdash.info',v:'listed',why:'Positions, liquidations and funding dashboards for Hyperliquid, free.',flags:['Blocked automated access today; existence confirmed by several sources']},
+  screener:{type:'tool',t:'HyperScreener (the official stats destination)',by:'ASXN, free',u:'https://hyperscreener.asxn.xyz/home',v:'opened',why:'stats.hyperliquid.xyz now redirects here. Volume, open interest, funding and HLP figures for the whole venue.',flags:['Run by a validator and research firm; data, not opinion']},
+  leaderboard:{type:'tool',t:'Hyperliquid leaderboard',by:'Official app',u:'https://app.hyperliquid.xyz/leaderboard',v:'listed',why:'Who is making and losing money, by account, because every book is public. Humbling and useful.',flags:[]},
+  explorer:{type:'tool',t:'Hyperliquid explorer',by:'Official app',u:'https://app.hyperliquid.xyz/explorer',v:'memory',why:'Every fill and liquidation, by address and block.',flags:[]},
+  defillama:{type:'tool',t:'Hyperliquid open interest',by:'DefiLlama',u:'https://defillama.com/open-interest/chain/hyperliquid-l1',v:'listed',why:'Venue-level open interest over time, free and independent.',flags:['Blocked automated access today']},
+  hypertracker:{type:'tool',t:'HyperTracker',by:'Independent',u:'https://hypertracker.io/',v:'opened',why:'Wallet PnL, liquidation distance and cohort leaderboards. The free dashboard is useful; ignore the marketing.',flags:['Heavy API upsell (paid plans from $179 a month)','Unsourced claims on its landing page']},
+  douglas:{type:'video',t:'Mark Douglas, Think like a professional trader (4-part seminar)',by:'Recorded seminar, about 4 hours total, re-uploaded on YouTube by Modern WallStreet',u:'https://www.youtube.com/results?search_query=Mark+Douglas+Stock+Trading+Psychology+Seminar+Think+like+a+professional+trader+Part+1+of+4',v:'listed',why:'The lecture version of Trading in the Zone: thinking in probabilities, why fear produces trading errors, what an edge actually is. Watch one part per week during Layer 7.',flags:['Link is a YouTube search for the exact title; the uploads are re-posts, so pick the one from Modern WallStreet','Skip the AI summary sites that rank above it']},
+  traderfeed:{type:'article',t:'TraderFeed',by:'Brett Steenbarger, blog, posting as of 2 Nov 2026',u:'https://traderfeed.blogspot.com',v:'opened',why:'Twenty years of short posts by a clinical psychologist who coaches hedge-fund and prop traders. Free. Read the archive on process and self-coaching, one post a day.',flags:['Links to his own books; no courses, no signals']},
+  cwt:{type:'podcast',t:'Chat With Traders',by:'Podcast since 2015, 250+ episodes',u:'https://chatwithtraders.com',v:'opened',why:'Long interviews with working traders across futures, equities and crypto. Pick episodes by guest. Skip any where the guest sells a course; the ones that remain are the best free oral history of discretionary trading.',flags:['Sponsor reads; original host handed over in 2022']},
+  sdk:{type:'tool',t:'hyperliquid-python-sdk',by:'Official, GitHub',u:'https://github.com/hyperliquid-dex/hyperliquid-python-sdk',v:'memory',why:'Ten lines to pull your fills and funding into the journal. The only API use this curriculum asks for.',flags:[]},
+  b_douglas:{type:'book',t:'Trading in the Zone',by:'Mark Douglas, 2000',u:'',v:'memory',why:'Chapters 7 to 11 are the core: probabilities, consistency, the five fundamental truths.',flags:[]},
+  b_steen:{type:'book',t:'The Daily Trading Coach',by:'Brett Steenbarger, 2009',u:'',v:'memory',why:'101 short lessons for coaching yourself. One a day alongside the drills.',flags:[]},
+  b_grimes:{type:'book',t:'The Art and Science of Technical Analysis',by:'Adam Grimes, 2012',u:'',v:'memory',why:'The one technical-analysis book that argues from evidence. His old free course now sits behind a subscription site, so the book is the resource.',flags:[]},
+  b_harris:{type:'book',t:'Trading and Exchanges',by:'Larry Harris, 2003',u:'',v:'memory',why:'Market microstructure for practitioners. Chapters 1 to 6 for why books behave as they do. Optional depth.',flags:[]},
+  b_schwager:{type:'book',t:'Market Wizards',by:'Jack Schwager, 1989',u:'',v:'memory',why:'Interviews with traders about process and risk. Still the best antidote to influencer trading content.',flags:[]},
+  hl_x:{type:'official',t:'@HyperliquidX on X',by:'Official account',u:'https://x.com/HyperliquidX',v:'listed',why:'Upgrades, listings, delistings and incidents are posted here first. Follow it and turn on notifications; it is the only account you need for news.',flags:['Impersonators DM people; the real account never DMs']},
+  hl_discord:{type:'official',t:'Hyperliquid Discord',by:'Official community',u:'https://discord.com/invite/hyperliquid',v:'listed',why:'Announcements and support. Use the link in the app footer rather than any link in a search result or DM.',flags:['Invite seen on a community wiki, not an official page; verify from app.hyperliquid.xyz']},
+  hist:{type:'official',t:'Historical data',by:'Hyperliquid docs',u:D('historical-data'),v:'opened',why:'Where the L2 book snapshots and trade history live if you ever want to replay a day.',flags:[]}
+};
+
+const LAYERS = [
+{id:'layer-0',n:0,name:'The order book',tag:'HTML',
+ goal:'Read a live book and know, before you click, the price you will get and what it will cost.',
+ surprise:'Most of what traders later call manipulation is just depth. A market order does not have a price. It has a path through the book.',
+ concepts:[
+  'Bid, ask, spread, mid. The spread is your first cost. On BTC it is usually one tick.',
+  'Depth: the size resting at each level. A market order walks through levels, and the walk is slippage.',
+  'Maker and taker. A limit order that rests is a maker and pays 0.015% at the base tier. Anything that crosses the spread is a taker and pays 0.045%. Market orders are always takers.',
+  'Price-time priority: at one price, the earliest order fills first. Cancel and re-place and you go to the back of the queue.',
+  'Tick and lot: prices must be multiples of the tick (perp prices carry at most 5 significant figures), sizes multiples of the lot, and every order is worth at least $10. Wrong rounding is rejected, not fixed.',
+  'Candles and volume are the book’s history: a candle is the open, high, low and close of the trades in its window; volume is how much size crossed.'],
+ read:[{t:'Order book (trading rules)',u:D('trading/order-book')},{t:'Order book under HyperCore (why it is on-chain, how orders are sequenced)',u:D('hypercore/order-book')},{t:'Tick and lot size',u:D('for-developers/api/tick-and-lot-size')}],
+ media:['b_harris'],
+ drills:['Open BTC, then HYPE, on testnet. Watch each book for 10 minutes. Write down the spread, the size at the top three levels, and how often the best bid changes.','Place a limit buy 1% below mid, then a market buy of the same size. Compare the fill price with the ask you saw, and the fee on each fill in trade history.','Place a Post Only buy at the best ask. The rejection message is the maker/taker line in one sentence.'],
+ pass:'For any order you are about to send, you can say whether it is maker or taker, what that costs, and roughly how far a market order of that size would move the price.',
+ quiz:[
+  {q:'A market buy larger than the size at the best ask fills at:',o:['The best ask only','Successively worse levels until it is done','The mid price'],a:1},
+  {q:'Which order pays the maker fee?',o:['A market order','A limit order that rests and later fills','An IOC order'],a:1},
+  {q:'Two orders at the same price. Who fills first?',o:['The larger one','The earlier one','Random'],a:1},
+  {q:'Minimum order value on Hyperliquid:',o:['$1','$10','$100'],a:1},
+  {q:'A Post Only buy placed at the best ask is:',o:['Filled immediately','Rejected','Rested at the best bid'],a:1}]},
+{id:'layer-1',n:1,name:'Perpetuals',tag:'CSS',
+ goal:'Know what a perp is as a contract, and compute notional, margin, entry price and PnL by hand.',
+ surprise:'A perp is a futures contract that never settles. Funding, not expiry, keeps it near spot, and everything odd about perps follows from that one substitution.',
+ concepts:[
+  'Spot: you own the coin. Dated future: a contract to settle on a date; it trades above or below spot (the basis) and converges at expiry. Perp: a future with no date; an hourly payment between longs and shorts (Layer 3) replaces convergence.',
+  'Long and short are symmetric. A short is a position whose PnL rises as price falls. Nothing is borrowed, nothing is lent.',
+  'Notional = size × price. Margin = what you post. Leverage = notional / margin. On Hyperliquid leverage is an integer from 1 to the asset’s maximum (BTC 40x, ETH 25x, SOL 20x, HYPE and most alts 10x as of November 2026) and is checked only when you open.',
+  'Entry price is the size-weighted average of your opening fills; closing fills never change it. Unrealized PnL = side × (mark − entry) × size, with side +1 for a long and −1 for a short. Closed PnL includes the fee.',
+  'Collateral is USDC but most oracle prices are quoted in USDT, so contracts are technically quanto. That is the tiny permanent gap between mark and the spot price you see elsewhere.',
+  'Why perps won crypto: no expiry to roll, one book per asset, leverage both ways, 24/7.'],
+ read:[{t:'Perpetual assets',u:D('trading/perpetual-assets')},{t:'Contract specifications',u:D('trading/contract-specifications')},{t:'Entry price and PnL',u:D('trading/entry-price-and-pnl')},{t:'Hyperliquid 101 for non-crypto audiences',u:D('about-hyperliquid/hyperliquid-101-for-non-crypto-audiences')}],
+ media:['thiccy','oddlots','wublock','empire'],
+ drills:['Open a 0.01 BTC long and a 0.5 SOL short at 3x on testnet. Before looking at the position panel, compute notional, margin, and PnL at +1% and −1%. Check.','Add to the long at a different price. Recompute the entry price by hand. Check.','Close half the long. Confirm the entry price did not move and that closed PnL includes the fee.'],
+ pass:'You can fill in notional, margin, leverage, entry and PnL for any position from the fills alone.',
+ quiz:[
+  {q:'A perp differs from a dated future mainly because:',o:['It has no expiry and funding keeps it near spot','It allows less leverage','It settles every day'],a:0},
+  {q:'Notional of 0.5 BTC at $80,000:',o:['$40,000','$160,000','$20,000'],a:0},
+  {q:'Your entry price changes on:',o:['Closing fills','Opening fills','Funding payments'],a:1},
+  {q:'Unrealized PnL on Hyperliquid is computed from:',o:['Last trade','Mark price','Oracle price'],a:1},
+  {q:'On Hyperliquid, leverage is checked:',o:['Continuously','Only when you open or increase a position','At each funding print'],a:1}]},
+{id:'layer-2',n:2,name:'The Hyperliquid machine',tag:'JavaScript',
+ goal:'Use every part of the trading screen on purpose, and know what each order type does under stress.',
+ surprise:'Trading is gas-free and the response you get back is the committed result, not a promise. Because the book is on-chain, every position and liquidation is public, which Layer 6 uses.',
+ intro:'Hyperliquid is its own L1 with two halves: HyperCore (the on-chain order books, margin engine, spot and staking) and HyperEVM (an EVM for apps). You never need HyperEVM to trade. Oracle prices update about every 3 seconds and the chain handles around 200,000 orders a second.',
+ setup:['Wallet: Rabby or MetaMask, a fresh wallet used only for this, seed phrase offline. Email login works but gives different addresses on mainnet and testnet, so use a wallet.','Mainnet: deposit about 10 USDC on Arbitrum (keep a little ETH there for gas). The first deposit pays a 1 USDC activation fee. This unlocks the testnet faucet.','Testnet: app.hyperliquid-testnet.xyz/drip pays 1,000 mock USDC to an address that has deposited on mainnet.','Click Enable Trading and sign the gas-free message. Withdrawals back to Arbitrum cost $1 and take a few minutes.'],
+ orders:[['Market','Fills now against the book','Always a taker; set your slippage tolerance'],['Limit (GTC)','Rests until filled or cancelled','Maker if it rests, taker if it crosses'],['Post Only (ALO)','Rests, or is rejected','Never pays the taker fee'],['IOC','Fills what it can now, cancels the rest','The honest market order'],['Reduce Only','Can only shrink a position','Use it on every exit'],['Stop market / stop limit','Fires when mark hits the trigger','Long triggers sit above mid, short below'],['Take market / take limit','Fires when mark hits the trigger','The opposite rule'],['TP/SL on a position','Market order on trigger, 10% slippage tolerance, mark-triggered','Use a limit TP/SL to choose your own slippage'],['Trailing stop','Follows the best mark by a distance or percent','Perps only; never moves backwards'],['Scale','A ladder of limits across a price range','Spreads entries without babysitting'],['TWAP','Slices every 30 s or more, 5 min to 7 days, $100 minimum, 3% slippage per slice','Catch-up slices grow to 3x; pauses during network upgrades'],['Chase','Post Only that re-prices to the best bid or ask','Runs in your browser tab; 5 at a time']],
+ fees:'0.045% taker and 0.015% maker at tier 0; spot 0.07% and 0.04%. Tiers step at $5M, $25M, $100M and $500M of 14-day volume (spot counts double), recomputed at the end of each UTC day. Staking HYPE discounts fees from 5% (more than 10 HYPE) to 40% (more than 500,000). A referral code discounts your first $25M of volume. Fees go to HLP and the assistance fund, not to a team.',
+ concepts:[],
+ read:[{t:'How to start trading',u:D('onboarding/how-to-start-trading')},{t:'Testnet faucet',u:D('onboarding/testnet-faucet')},{t:'Order types',u:D('trading/order-types')},{t:'Take profit and stop loss orders',u:D('trading/take-profit-and-stop-loss-orders-tp-sl')},{t:'Fees',u:D('trading/fees')},{t:'Miscellaneous UI',u:D('trading/miscellaneous-ui')},{t:'Portfolio graphs',u:D('trading/portfolio-graphs')},{t:'FAQ: My TP/SL did not execute correctly',u:D('support/faq/trade-outcome-looks-incorrect/my-tp-sl-did-not-execute-correctly')},{t:'FAQ: Why was my chase order canceled?',u:D('support/faq/trade-outcome-looks-incorrect/why-was-my-chase-order-canceled')},{t:'FAQ: Trailing stops',u:D('support/faq/trailing-stops')}],
+ media:['hl_x','hl_discord'],
+ drills:['Execute every row of the order table once on testnet, each with a line on what you expected and what happened.','Set a position TP/SL, then an order-tied (OCO) TP/SL. Cancel a partially filled parent and watch its children vanish. That is the rule that bites people.','Find the fee on one fill in trade history and reconcile it to the schedule.'],
+ pass:'You can place any row of the order table without reading, and you know which orders trigger on mark and which fill against the book.',
+ quiz:[
+  {q:'TP/SL orders on Hyperliquid trigger on:',o:['Last traded price','Mark price','Oracle price'],a:1},
+  {q:'Slippage tolerance on a market TP/SL:',o:['1%','10%','None, it is a limit'],a:1},
+  {q:'You cancel a partially filled parent order that has OCO children. The children:',o:['Stay active','Are cancelled too','Are placed immediately'],a:1},
+  {q:'Tier-0 perps fees, taker and maker:',o:['0.045% and 0.015%','0.10% and 0.02%','0.02% and 0.00%'],a:0},
+  {q:'TWAP minimum total size and smallest slice interval:',o:['$10 and 10 s','$100 and 30 s','$1,000 and 60 s'],a:1}]},
+{id:'layer-3',n:3,name:'Prices and funding',tag:'',
+ goal:'Know which of the three prices does what, and compute what a position costs to hold.',
+ surprise:'Your stop can fire at a price that never traded here. Triggers and liquidations use mark, and mark is built mostly from other exchanges.',
+ concepts:[
+  'Oracle price: every validator publishes, about every 3 seconds, a weighted median of spot prices on Binance (weight 3), OKX (2), Bybit (2), Kraken, KuCoin, Gate, MEXC and Hyperliquid (1 each). Used for funding and as one input to mark.',
+  'Mark price: the median of three inputs. The oracle plus a 150-second average of Hyperliquid’s own premium; the median of best bid, best ask and last trade here; and a weighted median of the large CEX perp prices. Mark drives liquidations, TP/SL triggers and unrealized PnL.',
+  'Mid and last: what the book shows. They can sit a few ticks from mark for minutes at a time.',
+  'Funding: paid every hour on the hour as one eighth of an 8-hour rate. Rate = premium + clamp(0.01% − premium, −0.05%, +0.05%). The premium is sampled every 5 seconds and averaged over the hour, measured on impact prices (what 20,000 USDC of BTC or ETH, or 6,000 USDC of anything else, would move the book). Positive means longs pay shorts. Capped at 4% an hour. Paid on oracle notional, peer to peer, no fee taken. When the book sits at the oracle the rate is 0.00125% an hour, about 11% a year paid by longs.',
+  'Open interest: total size held, counted once for both sides. It is the how-many-people-are-positioned counter; Layer 6 reads it together with price.',
+  'Premium, or basis: perp price minus oracle. A persistent premium means crowded longs and expensive carry.',
+  'Hyperps: pre-launch perps with no external oracle; mark is an 8-hour average of their own prints. A different animal. Leave them until you have a positive 20-trade block.'],
+ read:[{t:'Robust price indices (mark price)',u:D('trading/robust-price-indices')},{t:'Oracle',u:D('hypercore/oracle')},{t:'Funding',u:D('trading/funding')},{t:'Contract specifications',u:D('trading/contract-specifications')},{t:'Hyperps',u:D('trading/hyperps')}],
+ media:['cg_fund','screener'],
+ drills:['For BTC and one alt, write down the hourly funding for 24 hours from the funding history tab. Compute what a $1,000 long would have paid (the funding tool on the Tools page does the arithmetic).','Find a moment where mark and last differ by more than a tick and name which input moved.','Hold a 1x long on testnet across a funding print and watch the payment land at :00 UTC.'],
+ pass:'You can state what a position pays per day at today’s rate, and which price would trigger your stop.',
+ quiz:[
+  {q:'Hyperliquid pays funding every:',o:['8 hours','Hour','Day'],a:1},
+  {q:'Positive funding means:',o:['Shorts pay longs','Longs pay shorts','The exchange pays both'],a:1},
+  {q:'The funding payment is computed on:',o:['Mark notional','Oracle notional','Entry notional'],a:1},
+  {q:'Mark price is:',o:['The last trade','The median of three inputs including CEX prices','The best bid'],a:1},
+  {q:'The fixed interest component of funding, per 8 hours:',o:['0.01%','0.1%','1%'],a:0}]},
+{id:'layer-4',n:4,name:'Margin, liquidation and sizing',tag:'React',
+ goal:'Never be surprised by a liquidation, and size every trade from risk rather than from leverage.',
+ surprise:'Leverage does not change how much you make on a move. It changes how far away the cliff is.',
+ concepts:[
+  'Initial margin = notional / leverage. Maintenance margin = half the initial margin at the asset’s maximum leverage: 1.25% of notional on a 40x asset like BTC, 2% on 25x, 2.5% on 20x, 5% on 10x, up to 16.7% on 3x.',
+  'Cross: all your USDC backs all cross positions, so one bad position can take the account. Isolated: only the margin you assigned, and a liquidation touches only that position. Learn on isolated.',
+  'Liquidation price: liq = price − side × margin_available / size / (1 − side / maintenance_leverage), where margin_available is equity minus maintenance margin. Worked through the docs’ formula: 0.005 BTC long at 76,834 on isolated 5x liquidates about 19% lower; at 10x about 9% lower. The Tools page runs this for you.',
+  'How a liquidation runs, all on mark price: equity below maintenance, and the engine sends a market order for the whole position (20% slices with a 30-second cooldown above 100k USDC, 10k on testnet). If equity falls below two thirds of maintenance, the backstop liquidator, a part of HLP, takes the position and its margin, and the maintenance margin is not returned. No clearance fee.',
+  'ADL: if the backstop cannot absorb a position, the most profitable and most levered positions on the other side are closed against it at mark. You can be closed while winning. No position means no exposure.',
+  'Unrealized profit is withdrawable only while remaining margin is at least the larger of initial margin and 10% of notional.',
+  'Sizing: choose the stop first. Risk per trade = 0.5% to 1% of the account. Size = risk / distance to stop. Leverage is an output, not an input. Keep liquidation at least three times further away than the stop.'],
+ example:'Account 1,000, risk 1% = $10, stop 2% away, so notional is $500. On isolated 5x that is $100 of margin and a liquidation about 19% away, nine times the stop distance.',
+ read:[{t:'Margining',u:D('trading/margining')},{t:'Margin tiers',u:D('trading/margin-tiers')},{t:'Liquidations',u:D('trading/liquidations')},{t:'Auto-deleveraging',u:D('trading/auto-deleveraging')},{t:'FAQ: Why was I liquidated?',u:D('support/faq/trade-outcome-looks-incorrect/why-was-i-liquidated')},{t:'FAQ: How does margining work?',u:D('support/faq/trade-outcome-looks-incorrect/how-does-margining-work')}],
+ media:['arkham'],
+ drills:['Isolated, $20 margin, 10x short on a volatile alt, on testnet. Compute the liquidation price first. Let it happen. Compare the fill, what margin came back, and how long it took.','Rebuild the same idea as a sized trade: 1% risk, stop 2% away. Note how different the position looks.','Switch a position from cross to isolated and back. Note what the UI does to margin each way.'],
+ pass:'You state liquidation price, dollars at risk and stop distance for every trade before you send it.',
+ quiz:[
+  {q:'Maintenance margin on an asset whose maximum leverage is 40x:',o:['2.5%','1.25%','0.5%'],a:1},
+  {q:'In cross margin, a liquidation can:',o:['Only touch that position','Take all cross positions and the cross margin','Do nothing to margin'],a:1},
+  {q:'The backstop liquidator takes over when equity falls below:',o:['Maintenance margin','Two thirds of maintenance margin','Half of initial margin'],a:1},
+  {q:'Auto-deleveraging can close:',o:['Only losing positions','Profitable positions on the other side','Only HLP’s positions'],a:1},
+  {q:'Risk $10 with a stop 2% away. Notional:',o:['$200','$500','$1,000'],a:1}]},
+{id:'layer-5',n:5,name:'Time, sessions and timezones',tag:'',
+ goal:'Know what hour it is in the market, what happens at :00, and which scheduled events can move your position.',
+ surprise:'Crypto trades 24/7 but is moved by things on clocks. Hourly funding, the 00:00 UTC daily close, the US cash open, the CME weekend, Friday 08:00 UTC options expiry and 08:30 ET data releases give most days their shape.',
+ concepts:[
+  'Exchanges run on UTC. IST is UTC+5:30 all year. US clocks move twice a year (in 2026 daylight time ran from 8 March to 1 November), so every US-anchored event shifts by an hour in IST while funding and UTC levels stay put. London moves too. Tokyo and India never move.',
+  'Funding settles every hour at :00 UTC, which is :30 past the hour in IST. Whoever holds a position at that second pays or receives.',
+  'Fee tier is recomputed at the end of each UTC day (05:30 IST) on rolling 14-day volume.',
+  'The daily candle closes at 00:00 UTC (05:30 IST), the most watched level in crypto. Binance and Bybit pay funding then too, and at 08:00 and 16:00 UTC (some pairs every 4 hours); flows around those prints spill into every venue.',
+  'Network upgrades are announced on Discord and X. During the upgrade window only post-only orders fill and TWAP slices pause.',
+  'Sessions as regimes: Asia (00:00 to 08:00 UTC) is usually the quietest. Europe (07:00 to 16:00 UTC) builds. The US cash session (13:30 to 21:00 UTC) carries the most volume and the macro moves; the Europe/US overlap, 19:00 to 21:30 IST, is the loudest stretch of the day. Weekends are thin: bigger wicks on less size.',
+  'CME is closed from Friday night to Sunday night, so bitcoin’s Monday open on CME often sits away from Friday’s close, the CME gap that traders watch.',
+  'HIP-3 stock, index and commodity perps trade 24/7 while their underlyings are closed. The deployer’s oracle freezes or drifts with the book, premiums and funding build, and both snap at the underlying’s open. Do not hold one through an open unless that is the trade (Layer 8).'],
+ calendar:[['Hyperliquid funding','every :00','every :30','every :30'],['Daily close, Binance/Bybit funding, Tokyo open','00:00','05:30','05:30'],['NSE India session','03:45 to 10:00','09:15 to 15:30','09:15 to 15:30'],['London open','08:00 (07:00 summer)','13:30','12:30'],['Binance/Bybit funding','08:00, 16:00','13:30, 21:30','13:30, 21:30'],['Deribit options expiry (Fridays; monthly on the last Friday)','08:00','13:30','13:30'],['US CPI and NFP (08:30 ET)','13:30 (12:30 summer)','19:00','18:00'],['NYSE open (09:30 ET)','14:30 (13:30 summer)','20:00','19:00'],['FOMC statement (14:00 ET), press conference 30 min later','19:00 (18:00 summer)','00:30 next day','23:30'],['NYSE close (16:00 ET)','21:00 (20:00 summer)','02:30 next day','01:30 next day'],['CME daily break (16:00 to 17:00 CT)','22:00 to 23:00 (21:00 to 22:00 summer)','03:30 to 04:30','02:30 to 03:30'],['CME weekly close, Friday (16:00 CT)','22:00 (21:00 summer)','03:30 Saturday','02:30 Saturday'],['CME weekly open, Sunday (17:00 CT)','23:00 (22:00 summer)','04:30 Monday','03:30 Monday']],
+ read:[{t:'Funding (the hourly cadence)',u:D('trading/funding')},{t:'Fees (the UTC day)',u:D('trading/fees')}],
+ media:['k33','arxiv','nyse','cme','cpi','nfp','fomc','ff'],
+ drills:['Put the calendar into your own calendar as recurring events in IST, plus this month’s CPI, NFP and FOMC dates (the Market clock page lists the next ones).','Sit through one US open and one 00:00 UTC close on the 1-minute BTC chart with the book open. Note spread and range before, during and after.','Hold a small testnet position across a Friday 08:00 UTC expiry and a weekend. Note Monday’s CME gap.'],
+ pass:'For any IST time you can say which session you are in, when the next funding and the next scheduled release are, and whether US clocks are on daylight time.',
+ quiz:[
+  {q:'Hyperliquid funding settles at:',o:[':00 UTC every hour','00:00, 08:00 and 16:00 UTC','08:00 UTC daily'],a:0},
+  {q:'IST is:',o:['UTC+5','UTC+5:30','UTC+4:30'],a:1},
+  {q:'NYSE opens, in IST, during US winter time:',o:['19:00','20:00','21:00'],a:1},
+  {q:'The most watched daily candle close in crypto:',o:['00:00 UTC','00:00 ET','09:30 ET'],a:0},
+  {q:'The CME Globex daily break is:',o:['16:00 to 17:00 Central Time','12:00 to 13:00 Central Time','There is none'],a:0}]},
+{id:'layer-6',n:6,name:'Reading the market',tag:'',
+ goal:'Form a one-sentence thesis from the chart, the book, open interest and funding, and know what would prove it wrong.',
+ surprise:'On Hyperliquid the positioning data other venues hide is public. Who is long, how levered, and where they get liquidated is on-chain, and the explorers show it.',
+ concepts:[
+  'Timeframes: daily for context, 4-hour and 1-hour for structure, 5- and 15-minute for entries. The higher timeframe wins a disagreement.',
+  'Structure: higher highs and higher lows make an uptrend; the last swing low is the invalidation. Support and resistance are zones where the book got heavy before. Prior daily closes at 00:00 UTC matter most.',
+  'Volume confirms: a break on rising volume holds more often than one on thin volume. Weekend breaks are suspect.',
+  'The OI matrix. Price up with OI up: new longs, a trend that is also crowding. Price up with OI down: shorts covering, fuel running out. Price down with OI up: new shorts. Price down with OI down: longs liquidating, often the end of a move. Funding tells you who is paying to stay.',
+  'Liquidation levels: leveraged positions cluster at round leverage and get liquidated in clusters, so price is drawn to them. Heatmaps estimate the clusters; the trades tape and explorers show the prints.',
+  'Hyperliquid tells: the funding history tab, open interest in the asset header, the leaderboard, and the largest positions on the explorers.'],
+ read:[{t:'Portfolio graphs',u:D('trading/portfolio-graphs')},{t:'Miscellaneous UI',u:D('trading/miscellaneous-ui')}],
+ media:['glassnode','cg_hl','cg_liq','hypurrscan','hyperdash','leaderboard','explorer','defillama','hypertracker','b_grimes'],
+ drills:['For 10 days, before the US open, write one sentence each on BTC and one alt: bias, the level that invalidates it, and what OI and funding say. Grade it at 00:00 UTC.','Classify 20 recent 1-hour moves into the four OI quadrants.','Mark the three largest liquidation clusters on BTC and watch what happens when price reaches one.'],
+ pass:'Ten consecutive daily notes exist, each with a thesis and an invalidation, graded.',
+ quiz:[
+  {q:'Price up and open interest up suggests:',o:['Shorts covering','New longs opening','Longs closing'],a:1},
+  {q:'Price down and open interest down suggests:',o:['New shorts','Longs closing or being liquidated','New longs'],a:1},
+  {q:'The 4-hour and 5-minute charts disagree. Which wins?',o:['The 5-minute','The 4-hour','Neither'],a:1},
+  {q:'On Hyperliquid, positions and liquidations are:',o:['Hidden','Public on-chain','Visible only to market makers'],a:1},
+  {q:'A breakout on thin weekend volume is:',o:['More reliable','Less reliable','The same'],a:1}]},
+{id:'layer-7',n:7,name:'Plan, journal, review, psychology',tag:'Next.js',
+ goal:'Trade a written plan with fixed risk, journal every trade, and review in blocks of 20. This is the production app. Everything before it was components.',
+ surprise:'The enemy is not fear or greed. It is unplanned decisions. Every rule below exists to remove one decision from the moment.',
+ concepts:[
+  'The trade plan, one line each: setup, entry, invalidation (the stop), target, size from risk, time stop, and what would make you exit early.',
+  'R: 1R is the dollars at risk on the trade. Record results in R (+2R, −1R), not dollars; it makes trades comparable at any account size.',
+  'Expectancy = win rate × average win in R − loss rate × average loss in R. Judge it over blocks of 20 trades. One trade says nothing.',
+  'Hard rules: at most 1% risk per trade; stop for the day at −3R; a maximum number of trades per day; no trade within 15 minutes of a scheduled release unless it is the plan; never add size after a loss; flat before the weekend unless planned.',
+  'Journal fields: date and time in IST and UTC, market, setup, direction, entry, stop, target, size, R, fees, funding paid, exit reason, a grade for plan adherence (A followed, C did not) kept separate from PnL, a screenshot before and after, and one lesson. The Journal page here holds all of it and computes the block statistics.',
+  'Review: weekly, 30 minutes, the block’s expectancy and adherence, the best and worst trade, one rule to add or remove. Nothing else changes between reviews.'],
+ read:[{t:'Entry price and PnL (so your journal matches the exchange)',u:D('trading/entry-price-and-pnl')}],
+ media:['douglas','traderfeed','cwt','b_douglas','b_steen','b_schwager'],
+ drills:['Back-fill your last five testnet trades into the Journal page to test the fields.','20 planned testnet trades, every one journaled and graded. Read the expectancy and adherence the journal computes.','Graduate: mainnet, minimum size ($10 orders), isolated margin, 0.5% risk, 20 more trades. Raise risk toward 1% only after a block that is positive and above 90% adherence.'],
+ pass:'Two consecutive 20-trade blocks show above 90% plan adherence, whatever the PnL says.',
+ quiz:[
+  {q:'1R equals:',o:['1% of the account, always','The dollars at risk on that trade','The distance to target'],a:1},
+  {q:'Expectancy is judged over:',o:['One trade','Blocks of 20 trades','A calendar year'],a:1},
+  {q:'The adherence grade should be:',o:['Tied to PnL','Kept separate from PnL','Skipped on winners'],a:1},
+  {q:'After a losing trade you:',o:['Double the size to recover','Keep the size the plan sets','Stop trading for the month'],a:1},
+  {q:'The daily stop in this plan:',o:['−3R','−10R','There is none'],a:0}]},
+{id:'layer-8',n:8,name:'The rest of Hyperliquid',tag:'',
+ goal:'Know what else is on the venue and exactly when a manual trader should care.',
+ surprise:'HIP-3 lets you trade US stocks, indices, oil and gold as perps at about a tenth of the main-dex fee, 24/7. The catch is that a private deployer, not the validators, runs the oracle.',
+ pieces:[['Spot, HIP-1 and HIP-2','Native tokens with on-chain books; HIP-2 is a built-in liquidity strategy for new tokens','Buying HYPE for the fee discount; hedging a perp with spot; fees 0.07% / 0.04%'],['HIP-3 builder perps','Stocks, indices, commodities, FX and pre-IPO names listed by deployers (trade.xyz is the largest) with their own oracle, leverage, margin mode and fees; growth-mode taker fee about 0.005% to 0.009%','24/7 exposure to TradFi assets, but the deployer sets the oracle, can halt a market and settle it at mark, and most markets are isolated-only. Read the deployer’s own docs first'],['HIP-4 outcome markets','Yes/no markets on the same engine; fees only on close or settlement','Event trades, after Layer 7'],['HLP','The community vault that market-makes and runs backstop liquidations; deposits lock for 4 days from the last deposit; it earns a share of fees','Parking idle USDC; knowing it is the counterparty when a liquidation goes to backstop'],['User vaults','Copy a leader’s trades; legacy vaults take a profit share','Not before Layer 7'],['Staking HYPE','Delegate to validators; fee discounts from 5% at more than 10 HYPE to 40% at more than 500,000; unstaking queues for 7 days; linking to the trading account is permanent','Only if you hold HYPE anyway'],['Referrals and points','A referral code discounts your first $25M of volume; points programmes come and go','Use a code on day one; ignore points'],['Delisting','Markets can be delisted; open positions are settled','Check announcements before holding a small-cap for weeks'],['HyperEVM','The EVM side: apps, lending, bridges','Not needed to trade'],['Sub-accounts and API wallets','Separate books under one wallet; sub-accounts unlock after $100k of volume','Later, if ever']],
+ concepts:[],
+ read:[{t:'HIPs overview',u:D('hyperliquid-improvement-proposals-hips')},{t:'HIP-1: Native token standard',u:D('hyperliquid-improvement-proposals-hips/hip-1-native-token-standard')},{t:'HIP-2: Hyperliquidity',u:D('hyperliquid-improvement-proposals-hips/hip-2-hyperliquidity')},{t:'HIP-3: Builder-deployed perpetuals',u:D('hyperliquid-improvement-proposals-hips/hip-3-builder-deployed-perpetuals')},{t:'HIP-4: Outcome markets',u:D('hyperliquid-improvement-proposals-hips/hip-4-outcome-markets')},{t:'Vaults',u:D('hypercore/vaults')},{t:'Protocol vaults (HLP)',u:D('hypercore/vaults/protocol-vaults')},{t:'Staking',u:D('hypercore/staking')},{t:'How to stake HYPE',u:D('onboarding/how-to-stake-hype')},{t:'Referrals',u:D('referrals')},{t:'Delisting',u:D('trading/delisting')}],
+ media:['skhynix','arkham'],
+ drills:['Buy 1 HYPE on testnet spot and move it between the spot and perps balances.','Open a HIP-3 market such as the S&P 500 perp. Note its margin mode, maximum leverage and fee, then watch mark against oracle for an hour after the US close.'],
+ pass:'You can explain to someone else what HIP-3 oracle risk is and why you learned on validator-run perps first.',
+ quiz:[
+  {q:'Who runs the oracle of a HIP-3 market?',o:['The validators','The deployer','HLP'],a:1},
+  {q:'HLP deposits are locked for:',o:['1 day','4 days','30 days'],a:1},
+  {q:'A growth-mode HIP-3 taker fee is about:',o:['0.045%','0.005% to 0.009%','0.10%'],a:1},
+  {q:'A HIP-3 deployer can:',o:['Halt the market and settle positions at mark','Seize your margin directly','Change your leverage after entry'],a:0},
+  {q:'The staking fee discount starts at:',o:['More than 10 HYPE, 5%','More than 1,000 HYPE, 5%','There is no discount'],a:0}]},
+{id:'layer-9',n:9,name:'Tooling (optional)',tag:'SSR',
+ goal:'Make the data come to you, and automate the journal rather than the trading.',
+ surprise:'The right first use of the API is pulling your own fills into the journal. A bot only automates whatever edge you already have.',
+ concepts:[
+  'Alerts: the app does not send alerts, so your TradingView chart does. One alert per level in your daily note.',
+  'Data: HyperScreener (where stats.hyperliquid.xyz now redirects), the explorer, the leaderboard, Hypurrscan, Hyperdash, Coinglass.',
+  'Your own fills: copy them from the trade history tab, or pull them from the info API, which returns your fills and funding payments as JSON. The official Python SDK does it in about ten lines.',
+  'Everything else under the API docs (signing, nonces, rate limits, WebSocket) is for bots. Park it until manual trading has a positive 20-trade block.'],
+ read:[{t:'API overview',u:D('for-developers/api')},{t:'Info endpoint',u:D('for-developers/api/info-endpoint')},{t:'Historical data',u:D('historical-data')}],
+ media:['sdk','screener','hist'],
+ drills:['One script that pulls a week of your fills and funding into a CSV with the journal’s columns.'],
+ pass:'The journal fills itself and you only type the setup, the grade and the lesson.',
+ quiz:[
+  {q:'The right first use of the API for a manual trader:',o:['A trading bot','Pulling your own fills into the journal','Market making'],a:1},
+  {q:'Price alerts on Hyperliquid:',o:['Built into the app','Not in the app; use TradingView alerts','Sent by email'],a:1},
+  {q:'Historical L2 book snapshots are documented on:',o:['The Historical data page','The Fees page','Nowhere'],a:0},
+  {q:'stats.hyperliquid.xyz now redirects to:',o:['Coinglass','ASXN HyperScreener','Dune'],a:1},
+  {q:'A bot automates:',o:['An edge you already have','A new edge','Luck'],a:0}]}
+];
+
+const SCHEDULE = [
+ ['1','0 and 1','6','Maker/taker called correctly on every order; PnL and entry price by hand'],
+ ['2','2','6','Every order type executed once; one fee reconciled to the schedule'],
+ ['3','3','5','24-hour funding log for two coins; one mark-vs-last gap explained'],
+ ['4','4','5','One planned liquidation; one sized trade with stop, risk and liquidation stated first'],
+ ['5','5, start of 6','6','Calendar built in IST; one US open and one 00:00 UTC close observed'],
+ ['6','6','6','10 graded daily notes'],
+ ['7','7 on testnet','8','20 journaled, graded trades; expectancy and adherence computed'],
+ ['8','7 on mainnet; 8 and 9 as reading','8','20 mainnet trades at $10 size and 0.5% risk; adherence above 90%']];
+
+const GLOSSARY = [
+ ['ALO / Post Only','An order that rests or is rejected, never a taker'],['ADL','Auto-deleveraging: profitable positions closed against a bankrupt one when the backstop cannot absorb it'],['Backstop liquidation','HLP takes an underwater position and its margin when equity is below two thirds of maintenance'],['Basis / premium','Perp price minus oracle price'],['Cross / isolated','Whether all your collateral, or only an assigned amount, backs a position'],['Expectancy','Average R per trade over a block: win rate × average win − loss rate × average loss'],['Funding','The hourly payment between longs and shorts that keeps a perp near its oracle'],['HIP-1 / 2 / 3 / 4','Native spot tokens / built-in spot liquidity / builder-deployed perps / outcome markets'],['HLP','Hyperliquidity Provider: the community vault that market-makes and runs backstop liquidations'],['HyperCore / HyperEVM','The order-book and margin engine / the EVM app layer'],['Impact price','The average price a fixed notional (20k USDC for BTC and ETH, 6k otherwise) would fill at; used for the funding premium'],['IOC / GTC','Fill now and cancel the rest / rest until filled or cancelled'],['Maintenance margin','Half the initial margin at maximum leverage; below it you are liquidatable'],['Mark / oracle / mid','The liquidation and trigger price / the CEX-median price / the book’s midpoint'],['Notional','Size × price, the full exposure regardless of leverage'],['OI','Open interest: total position size held'],['R','Dollars at risk on one trade, the unit results are recorded in'],['Reduce only','An order that can only shrink a position'],['Slippage','The difference between the price you saw and the price you got'],['Tick / lot','The smallest price step / the smallest size step'],['TWAP','A large order sliced over time']];
+
+/* Scheduled releases. CPI and NFP at 08:30 ET; FOMC statement at 14:00 ET on the second day. Sources: BLS and Federal Reserve pages, opened 3 Nov 2026. */
+const EVENTS = {
+ cpi:['2026-11-10','2026-12-10','2027-01-13','2027-02-11','2027-03-10','2027-04-13','2027-05-12','2027-06-10','2027-07-14','2027-08-11','2027-09-14','2027-10-14','2027-11-10','2027-12-10'],
+ nfp:['2026-11-06','2026-12-04','2027-01-08','2027-02-05','2027-03-05','2027-04-02','2027-05-07','2027-06-04','2027-07-02','2027-08-06','2027-09-03','2027-10-08','2027-11-05','2027-12-03'],
+ fomc:['2026-12-09','2027-01-27','2027-03-17','2027-04-28','2027-06-09','2027-07-28','2027-09-15','2027-10-27','2027-12-08']
+};
+
+const VIEWS = [
+ {id:'overview',label:'Overview',k:'⌂'},
+ ...LAYERS.map(l=>({id:l.id,label:l.name,k:String(l.n),layer:true})),
+ {id:'media',label:'Media track',k:'▶'},
+ {id:'noise',label:'Noise filter',k:'⊘'},
+ {id:'clock',label:'Market clock',k:'◷'},
+ {id:'tools',label:'Tools',k:'∑'},
+ {id:'journal',label:'Journal',k:'✎'},
+ {id:'schedule',label:'Schedule',k:'8w'},
+ {id:'glossary',label:'Glossary',k:'A–Z'},
+ {id:'sources',label:'Sources',k:'✓'}
+];
+
+/* ============================ STATE ============================ */
+const state = { items:{}, quiz:{}, journal:[], dbMode:'local', loaded:false };
+let db=null, progressRef=null, journalCol=null, unsubJ=null;
+let saveTimer=null, saving=false, dirty=false;
+
+function lsGet(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+
+function loadLocal(){
+  const p=lsGet('hlwb.progress'); if(p){ state.items=p.items||{}; state.quiz=p.quiz||{}; }
+  const j=lsGet('hlwb.journal'); if(Array.isArray(j)) state.journal=j;
+}
+function persistProgress(){
+  lsSet('hlwb.progress',{items:state.items,quiz:state.quiz});
+  if(!db) return;
+  dirty=true; clearTimeout(saveTimer); saveTimer=setTimeout(flushProgress,500);
+}
+async function flushProgress(){
+  if(saving||!dirty||!db) return;
+  saving=true; dirty=false;
+  try{ await progressRef.set({items:state.items,quiz:state.quiz,updatedAt:new Date().toISOString()}); }
+  catch(e){ toast('Could not save progress to the store; kept locally'); }
+  saving=false; if(dirty) flushProgress();
+}
+function toggleItem(id,on){ if(on) state.items[id]=true; else delete state.items[id]; persistProgress(); updateNav(); }
+
+async function initDb(){
+  try{
+    if(!window.claude||!window.claude.use) return;
+    db=await claude.use('db');
+    if(!db) return;
+    state.dbMode='db';
+    progressRef=db.doc('progress/main');
+    journalCol=db.collection('journal');
+    let t=setTimeout(()=>{ toast('Store not reached yet; showing local copy'); },10000);
+    progressRef.onSnapshot(snap=>{
+      if(!snap.metadata.fromCache) clearTimeout(t);
+      if(snap.exists){ const d=snap.data(); state.items=d.items||{}; state.quiz=d.quiz||{}; lsSet('hlwb.progress',{items:state.items,quiz:state.quiz}); renderCurrent(); updateNav(); }
+    },err=>{ clearTimeout(t); state.dbMode='local'; });
+    unsubJ=journalCol.orderBy('ts','desc').limit(400).onSnapshot(snap=>{
+      state.journal=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
+      lsSet('hlwb.journal',state.journal);
+      if(current==='journal'||current==='overview') renderCurrent();
+    },err=>{ state.dbMode='local'; });
+    updateDbBadge();
+  }catch(e){ db=null; }
+}
+function updateDbBadge(){ const el=document.getElementById('dbmode'); if(el) el.textContent = state.dbMode==='db'?'Progress and journal are saved to this page’s store and follow you across devices.':'Progress and journal are saved in this browser only (store not available in this view).'; }
+
+/* ============================ HELPERS ============================ */
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function inline(s){ // bold and links only
+  return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmtMoney(x,d=2){ if(!isFinite(x)) return '—'; return (x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtPct(x,d=2){ if(!isFinite(x)) return '—'; return x.toFixed(d)+'%'; }
+function fmtNum(x,d=4){ if(!isFinite(x)) return '—'; return x.toLocaleString('en-US',{maximumFractionDigits:d}); }
+
+/* time zone helpers */
+const fmtCache={};
+function zfmt(tz){ return fmtCache[tz]||(fmtCache[tz]=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short',timeZoneName:'short'})); }
+function zparts(d,tz){ const o={}; for(const p of zfmt(tz).formatToParts(d)) o[p.type]=p.value; return {y:+o.year,m:+o.month,d:+o.day,h:+o.hour,mi:+o.minute,s:+o.second,wd:o.weekday,tzn:o.timeZoneName}; }
+function tzOffsetMin(d,tz){ const p=zparts(d,tz); const asUtc=Date.UTC(p.y,p.m-1,p.d,p.h,p.mi,p.s); return Math.round((asUtc-d.getTime())/60000); }
+function zonedToUtc(y,m,d,h,mi,tz){ let g=Date.UTC(y,m-1,d,h,mi); for(let i=0;i<2;i++){ const off=tzOffsetMin(new Date(g),tz); g=Date.UTC(y,m-1,d,h,mi)-off*60000; } return new Date(g); }
+function istStr(d,withDate){ const p=zparts(d,'Asia/Kolkata'); return (withDate?`${p.wd} ${pad(p.d)}/${pad(p.m)} `:'')+`${pad(p.h)}:${pad(p.mi)}`; }
+function utcStr(d,withDate){ return (withDate?`${d.getUTCDate().toString().padStart(2,'0')}/${pad(d.getUTCMonth()+1)} `:'')+`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`; }
+function countdown(ms){ if(ms<0) ms=0; const s=Math.floor(ms/1000); const dd=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), ss=s%60; if(dd>0) return `${dd}d ${pad(h)}h ${pad(m)}m`; if(h>0) return `${pad(h)}:${pad(m)}:${pad(ss)}`; return `${pad(m)}:${pad(ss)}`; }
+
+/* ============================ MARKET CLOCK ============================ */
+function nextTopOfHour(now){ const d=new Date(now); d.setUTCMinutes(0,0,0); d.setUTCHours(d.getUTCHours()+1); return d; }
+function nextUtcHours(now,hours){ const base=new Date(now); base.setUTCMinutes(0,0,0); for(let i=0;i<30;i++){ const d=new Date(base.getTime()+i*3600000); if(d>now && hours.includes(d.getUTCHours())) return d; } return null; }
+function nextDailyClose(now){ const d=new Date(now); d.setUTCHours(24,0,0,0); return d; }
+function sessionLabel(now){
+  const wd=now.getUTCDay(); const h=now.getUTCHours()+now.getUTCMinutes()/60;
+  if(wd===6||wd===0) return 'Weekend (thin books, CME closed)';
+  if(h<7) return 'Asia';
+  if(h<13.5) return 'Europe';
+  if(h<16) return 'Europe/US overlap (loudest)';
+  if(h<21) return 'US cash session';
+  return 'Late US (post-close)';
+}
+function nyseStatus(now){
+  const p=zparts(now,'America/New_York'); const mins=p.h*60+p.mi; const wk=['Mon','Tue','Wed','Thu','Fri'].includes(p.wd);
+  const open = wk && mins>=570 && mins<960;
+  // next open
+  let d=new Date(now); let next=null;
+  for(let i=0;i<8;i++){ const q=zparts(d,'America/New_York'); const cand=zonedToUtc(q.y,q.m,q.d,9,30,'America/New_York'); if(cand>now && ['Mon','Tue','Wed','Thu','Fri'].includes(zparts(cand,'America/New_York').wd)){ next=cand; break; } d=new Date(d.getTime()+86400000); }
+  let close=null; if(open){ close=zonedToUtc(p.y,p.m,p.d,16,0,'America/New_York'); }
+  return {open,next,close,tzn:p.tzn};
+}
+function cmeStatus(now){
+  const p=zparts(now,'America/Chicago'); const mins=p.h*60+p.mi; const wd=p.wd;
+  let open=false, label='';
+  if(wd==='Sat'){ open=false; label='Weekend close'; }
+  else if(wd==='Sun'){ open = mins>=1020; label= open?'Open (Sunday session)':'Weekend close'; }
+  else if(wd==='Fri'){ open = mins<960; label= open?'Open':'Weekend close'; }
+  else { if(mins>=960 && mins<1020){ open=false; label='Daily maintenance break'; } else { open=true; label='Open'; } }
+  // next transition
+  let nextAt=null, nextLabel='';
+  const mk=(dayOffset,h,m)=>{ const d=new Date(now.getTime()+dayOffset*86400000); const q=zparts(d,'America/Chicago'); return zonedToUtc(q.y,q.m,q.d,h,m,'America/Chicago'); };
+  for(let i=0;i<8 && !nextAt;i++){
+    const d=new Date(now.getTime()+i*86400000); const q=zparts(d,'America/Chicago');
+    const cands=[];
+    if(['Mon','Tue','Wed','Thu'].includes(q.wd)){ cands.push([mk(i,16,0),'Daily break starts'],[mk(i,17,0),'Reopens']); }
+    if(q.wd==='Fri'){ cands.push([mk(i,16,0),'Weekly close']); }
+    if(q.wd==='Sun'){ cands.push([mk(i,17,0),'Weekly open']); }
+    cands.sort((a,b)=>a[0]-b[0]);
+    for(const c of cands){ if(c[0]>now){ nextAt=c[0]; nextLabel=c[1]; break; } }
+  }
+  return {open,label,nextAt,nextLabel,tzn:p.tzn};
+}
+function nextDeribit(now){ const d=new Date(now); d.setUTCHours(8,0,0,0); while(d<=now||d.getUTCDay()!==5) d.setUTCDate(d.getUTCDate()+1); const m=d.getUTCMonth(); const n=new Date(d); n.setUTCDate(n.getUTCDate()+7); const monthly = n.getUTCMonth()!==m; return {at:d,monthly}; }
+function nextRelease(list,h,mi){ const now=new Date(); for(const s of list){ const [y,m,d]=s.split('-').map(Number); const at=zonedToUtc(y,m,d,h,mi,'America/New_York'); if(at>now) return at; } return null; }
+function usDst(now){ const p=zparts(now,'America/New_York'); return p.tzn==='EDT'?'Daylight time (EDT, UTC−4)':'Standard time (EST, UTC−5)'; }
+
+function tickStrip(){
+  const now=new Date();
+  document.getElementById('s-utc').textContent=`${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())}`;
+  const ip=zparts(now,'Asia/Kolkata'); document.getElementById('s-ist').textContent=`${pad(ip.h)}:${pad(ip.mi)}:${pad(ip.s)}`;
+  document.getElementById('s-fund').textContent=countdown(nextTopOfHour(now)-now);
+  document.getElementById('s-sess').textContent=sessionLabel(now);
+  document.getElementById('s-dst').textContent=zparts(now,'America/New_York').tzn==='EDT'?'daylight (EDT)':'standard (EST)';
+  if(current==='clock') renderClockLive();
+}
+
+function renderClockLive(){
+  const now=new Date(); const el=document.getElementById('clocklive'); if(!el) return;
+  const f=nextTopOfHour(now), b=nextUtcHours(now,[0,8,16]), dc=nextDailyClose(now), ny=nyseStatus(now), cme=cmeStatus(now), dr=nextDeribit(now);
+  const cpi=nextRelease(EVENTS.cpi,8,30), nfp=nextRelease(EVENTS.nfp,8,30), fomc=nextRelease(EVENTS.fomc,14,0);
+  const ev=(label,at,note)=>at?`<div class="ev"><span>${label}${note?` <span class="note">${note}</span>`:''}</span><span class="at">${utcStr(at,true)} UTC · ${istStr(at,true)} IST</span><span class="in">in ${countdown(at-now)}</span></div>`:'';
+  const nyRow = ny.open?`<div class="ev"><span class="status"><i class="dot on"></i>NYSE open (${ny.tzn})</span><span class="at">closes ${utcStr(ny.close)} UTC · ${istStr(ny.close)} IST</span><span class="in">in ${countdown(ny.close-now)}</span></div>`:ev('<span class="status"><i class="dot off"></i>NYSE closed, next open</span>',ny.next,'holidays not modelled');
+  const cmeRow = `<div class="ev"><span class="status"><i class="dot ${cme.open?'on':(cme.label.includes('break')?'brk':'off')}"></i>CME Globex: ${cme.label} (${cme.tzn})</span><span class="at">${cme.nextLabel} ${utcStr(cme.nextAt,true)} UTC · ${istStr(cme.nextAt,true)} IST</span><span class="in">in ${countdown(cme.nextAt-now)}</span></div>`;
+  el.innerHTML = `
+   <div class="grid3">
+     <div class="stat"><span class="v">${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())}</span><span class="l">UTC, the exchange clock</span></div>
+     <div class="stat"><span class="v">${istStr(now)}:${pad(zparts(now,'Asia/Kolkata').s)}</span><span class="l">IST (UTC+5:30, never changes)</span></div>
+     <div class="stat"><span class="v">${countdown(f-now)}</span><span class="l">to the next Hyperliquid funding print</span></div>
+   </div>
+   <h3>Right now</h3>
+   <div class="kv"><b>Session</b><span>${sessionLabel(now)}</span><b>US clocks</b><span>${usDst(now)}</span><b>London</b><span>${pad(zparts(now,'Europe/London').h)}:${pad(zparts(now,'Europe/London').mi)} ${zparts(now,'Europe/London').tzn}</span><b>New York</b><span>${pad(zparts(now,'America/New_York').h)}:${pad(zparts(now,'America/New_York').mi)} ${zparts(now,'America/New_York').tzn}</span><b>Tokyo</b><span>${pad(zparts(now,'Asia/Tokyo').h)}:${pad(zparts(now,'Asia/Tokyo').mi)} JST</span></div>
+   <h3>Next on the clock</h3>
+   ${ev('Hyperliquid funding (every hour)',f)}
+   ${ev('Binance / Bybit funding (00, 08, 16 UTC)',b)}
+   ${ev('Daily candle close, fee tier recompute',dc)}
+   ${nyRow}
+   ${cmeRow}
+   ${ev('Deribit options expiry'+(dr.monthly?' (monthly, last Friday)':''),dr.at,'08:00 UTC Fridays')}
+   ${ev('US CPI',cpi,'08:30 ET, BLS schedule')}
+   ${ev('US nonfarm payrolls',nfp,'08:30 ET, BLS schedule')}
+   ${ev('FOMC statement',fomc,'14:00 ET, press conference 30 min later')}
+   <p class="note">NYSE and CME holidays are not modelled; check the NYSE and CME calendars before a US holiday. Release dates come from the BLS and Federal Reserve pages opened ${VERIFIED_ON} and run to December 2027.</p>`;
+}
+
+/* ============================ RENDER ============================ */
+let current='overview';
+function layerProgress(l){ const total=l.drills.length+1; let done=0; l.drills.forEach((_,i)=>{ if(state.items[l.id+'-d'+i]) done++; }); if(state.items[l.id+'-pass']) done++; return {done,total,pct:Math.round(done/total*100)}; }
+function updateNav(){
+  document.querySelectorAll('#nav a').forEach(a=>{ a.classList.toggle('active',a.dataset.id===current); const l=LAYERS.find(x=>x.id===a.dataset.id); if(l){ const p=layerProgress(l); const bar=a.querySelector('.bar i'); if(bar) bar.style.width=p.pct+'%'; } });
+}
+function buildNav(){
+  const nav=document.getElementById('nav'); let html='';
+  VIEWS.forEach((v,i)=>{ if(v.id==='layer-0') html+='<div class="sep">The stack</div>'; if(v.id==='media') html+='<div class="sep">Around it</div>'; html+=`<a href="#${v.id}" data-id="${v.id}"><span class="k">${v.k}</span><span>${v.label}</span>${v.layer?'<span class="bar"><i></i></span>':''}</a>`; });
+  nav.innerHTML=html;
+}
+function mediaCard(id){
+  const m=MEDIA[id]; if(!m) return '';
+  const ver = m.v==='opened'?`<span class="pill ok">opened ${VERIFIED_ON}</span>`:(m.v==='listed'?'<span class="pill warn">seen in results, not opened</span>':'<span class="pill">long-standing link, not re-opened</span>');
+  const title = m.u?`<a href="${m.u}" target="_blank" rel="noopener">${esc(m.t)}</a>`:esc(m.t);
+  return `<div class="mcard"><span class="mtype ${m.type}">${m.type}</span><div><div class="t">${title}</div><div class="by">${esc(m.by)}</div><p class="why">${esc(m.why)}</p><div class="flags">${m.type==='book'?'':ver}${m.flags.map(f=>`<span class="pill">${esc(f)}</span>`).join('')}</div></div></div>`;
+}
+function checkRow(id,text){ const on=!!state.items[id]; return `<div class="check ${on?'done':''}"><input type="checkbox" id="${id}" ${on?'checked':''} data-item="${id}"><label for="${id}">${inline(text)}</label></div>`; }
+function quizBlock(l){
+  const best=state.quiz[l.id]; return `<div class="quiz"><h3>Check yourself <span class="pill">${best!=null?`best ${best}/${l.quiz.length}`:'not taken'}</span></h3>${l.quiz.map((q,qi)=>`<div class="q" data-q="${qi}"><div class="qt">${qi+1}. ${esc(q.q)}</div><div class="opts">${q.o.map((o,oi)=>`<button type="button" data-l="${l.id}" data-q="${qi}" data-o="${oi}">${esc(o)}</button>`).join('')}</div></div>`).join('')}<div class="qscore" id="qs-${l.id}"></div></div>`;
+}
+function renderLayer(l){
+  let h=`<div class="eyebrow">Layer ${l.n}${l.tag?` · the ${l.tag} of the stack`:''}</div><h2>${esc(l.name)}</h2><p class="goal"><b>Goal.</b> ${esc(l.goal)}</p><div class="surprise">${esc(l.surprise)}</div>`;
+  if(l.intro) h+=`<p>${esc(l.intro)}</p>`;
+  if(l.setup){ h+='<h3>Setup, once</h3><ol>'+l.setup.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'; }
+  if(l.orders){ h+='<h3>Order types</h3><div class="tw"><table><thead><tr><th>Type</th><th>What it does</th><th>The rule to remember</th></tr></thead><tbody>'+l.orders.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')+'</tbody></table></div>'; }
+  if(l.fees) h+=`<h3>Fees</h3><p>${esc(l.fees)}</p>`;
+  if(l.concepts.length){ h+='<h3>Concepts, in order</h3><ul>'+l.concepts.map(c=>`<li>${esc(c)}</li>`).join('')+'</ul>'; }
+  if(l.example) h+=`<p><b>Example.</b> ${esc(l.example)}</p>`;
+  if(l.calendar){ h+='<h3>Calendar in IST</h3><div class="tw"><table><thead><tr><th>Event</th><th>UTC</th><th>IST, Nov to Mar</th><th>IST, Mar to Nov</th></tr></thead><tbody>'+l.calendar.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td><td class="num">${esc(r[2])}</td><td class="num">${esc(r[3])}</td></tr>`).join('')+'</tbody></table></div><p class="note">The Market clock page computes all of this live, with the next CPI, payrolls and FOMC dates.</p>'; }
+  if(l.pieces){ h+='<div class="tw"><table><thead><tr><th>Piece</th><th>What it is</th><th>When it matters to you</th></tr></thead><tbody>'+l.pieces.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')+'</tbody></table></div>'; }
+  h+='<h3>Read: official docs</h3><ul>'+l.read.map(r=>`<li><a href="${r.u}" target="_blank" rel="noopener">${esc(r.t)}</a></li>`).join('')+'</ul>';
+  if(l.media.length){ h+='<h3>Media for this layer</h3><div class="media">'+l.media.map(mediaCard).join('')+'</div>'; }
+  h+='<h3>Do</h3><div class="card tight">'+l.drills.map((d,i)=>checkRow(l.id+'-d'+i,d)).join('')+'</div>';
+  h+=`<div class="pass"><b>Passed when:</b> ${esc(l.pass)}<div style="margin-top:8px">${checkRow(l.id+'-pass','I can do this, honestly, without looking.')}</div></div>`;
+  h+=quizBlock(l);
+  const idx=LAYERS.indexOf(l); const prev=LAYERS[idx-1], next=LAYERS[idx+1];
+  h+=`<p style="margin-top:22px;display:flex;justify-content:space-between;gap:12px"><span>${prev?`<a href="#${prev.id}">← Layer ${prev.n}: ${esc(prev.name)}</a>`:''}</span><span>${next?`<a href="#${next.id}">Layer ${next.n}: ${esc(next.name)} →</a>`:'<a href="#journal">Open the journal →</a>'}</span></p>`;
+  return h;
+}
+function renderOverview(){
+  const totalDrills=LAYERS.reduce((a,l)=>a+l.drills.length+1,0); const done=LAYERS.reduce((a,l)=>a+layerProgress(l).done,0);
+  const quizzes=LAYERS.filter(l=>state.quiz[l.id]!=null).length; const perfect=LAYERS.filter(l=>state.quiz[l.id]===l.quiz.length).length;
+  const closed=state.journal.filter(t=>Number.isFinite(t.r)); const last20=closed.slice(0,20);
+  const exp=last20.length?last20.reduce((a,t)=>a+t.r,0)/last20.length:NaN; const adh=last20.length?last20.filter(t=>t.grade==='A').length/last20.length*100:NaN;
+  const now=new Date();
+  return `<div class="eyebrow">Hyperliquid, learned as a stack</div><h2>Become a manual perps trader, one layer at a time</h2>
+  <p>Ten layers, each a skill the next one assumes, the way HTML comes before CSS and React before Next.js. Layer 0 is the order book. Layer 7 is you trading a written plan with a journal. Everything in between is required; nothing after Layer 7 is. Every drill runs on testnet until the schedule says otherwise, and the testnet faucet only pays an address that has made one mainnet deposit, so day one needs about 10 USDC on Arbitrum.</p>
+  <div class="grid3">
+    <div class="card tight stat"><span class="v">${done}/${totalDrills}</span><span class="l">drills and pass checks done</span></div>
+    <div class="card tight stat"><span class="v">${perfect}/${LAYERS.length}</span><span class="l">quizzes at full marks (${quizzes} taken)</span></div>
+    <div class="card tight stat"><span class="v">${last20.length?exp.toFixed(2)+'R':'—'}</span><span class="l">expectancy, last ${last20.length||20} journaled trades${last20.length?` · adherence ${adh.toFixed(0)}%`:''}</span></div>
+  </div>
+  <h3>The stack</h3>
+  <div class="stack">${LAYERS.map(l=>{ const p=layerProgress(l); return `<a href="#${l.id}" class="${p.pct===100?'full':''}"><span class="k">L${l.n}</span><span>${esc(l.name)}${l.tag?` <span class="note">(${l.tag})</span>`:''}</span><span class="pct">${p.pct}%</span></a>`; }).join('')}</div>
+  <h3>How each layer is built</h3>
+  <ul><li><b>Goal</b>: what you can do afterwards. <b>The surprise</b>: the one thing in the layer that changes how you trade.</li><li><b>Concepts</b> in order, with the exact numbers from the Hyperliquid docs opened on ${VERIFIED_ON}.</li><li><b>Read</b>: official docs first, then the vetted media for that layer (video, podcast, research, tools, books).</li><li><b>Do</b>: drills on testnet, ticked here and saved. <b>Passed when</b>: a concrete self-check. <b>Check yourself</b>: five questions with instant answers.</li></ul>
+  <h3>Right now <span class="note">(${sessionLabel(now)})</span></h3>
+  <p class="small">Next Hyperliquid funding in <b class="num">${countdown(nextTopOfHour(now)-now)}</b>. US clocks on ${usDst(now).toLowerCase()}. The <a href="#clock">Market clock</a> has the full list; the <a href="#tools">Tools</a> page sizes trades and computes liquidation prices with the docs’ formulas.</p>
+  <p class="note" id="dbmode"></p>
+  <p class="note">Ground rules: official docs win over any explainer; exchange clocks are UTC and you are in IST; journal from the first testnet order. The <a href="#noise">Noise filter</a> explains what was left out of the media track and why. The prose curriculum, the media track and the research notes are in the public repository <a href="https://github.com/abilashsenth/Hyperliquid-Bootcamp" target="_blank" rel="noopener">abilashsenth/Hyperliquid-Bootcamp</a>, which also hosts this page.</p>`;
+}
+let mediaFilter='all';
+function renderMedia(){
+  const types=['all','video','podcast','interview','article','research','case','tool','calendar','book','official'];
+  const ids=Object.keys(MEDIA); const order={video:0,podcast:1,interview:2,research:3,article:4,case:5,tool:6,calendar:7,book:8,official:9};
+  const byLayer=[]; LAYERS.forEach(l=>{ const ms=l.media.filter(id=>mediaFilter==='all'||MEDIA[id].type===mediaFilter); if(ms.length) byLayer.push({l,ms}); });
+  const used=new Set(LAYERS.flatMap(l=>l.media)); const rest=ids.filter(id=>!used.has(id)&&(mediaFilter==='all'||MEDIA[id].type===mediaFilter));
+  return `<div class="eyebrow">Vetted, by layer</div><h2>Media track</h2>
+  <p>Every item below was found by searching the web on ${VERIFIED_ON}, opened where the site allowed it, and kept only if it teaches a mechanism or a skill without selling you something. Each card says why it is here and what to be careful of. The <a href="#noise">Noise filter</a> lists what was found and rejected.</p>
+  <p class="small">There is deliberately no YouTube walkthrough of the Hyperliquid interface: every tutorial found came from channels whose descriptions could not be checked, and that category is dominated by referral-code content. The docs’ How to start trading page plus the Layer 2 drills replace it. If you want a video anyway, open the description first and drop it if the first link is a referral code.</p>
+  <div class="filters">${types.map(t=>`<button type="button" data-f="${t}" class="${mediaFilter===t?'on':''}">${t==='all'?'All':t}</button>`).join('')}</div>
+  ${byLayer.map(({l,ms})=>`<h3>Layer ${l.n}: ${esc(l.name)}</h3><div class="media">${ms.map(mediaCard).join('')}</div>`).join('')}
+  ${rest.length?`<h3>Also useful</h3><div class="media">${rest.map(mediaCard).join('')}</div>`:''}
+  <h3>X: who to follow, and the mute rule</h3>
+  <p>X is for announcements and positioning, not for learning. Follow <a href="https://x.com/HyperliquidX" target="_blank" rel="noopener">@HyperliquidX</a> with notifications on, the foundation account @HyperFND, and the data tools above (HyperDash posts as @hypurrdash). Then follow the authors of the pieces on this page if they post. Mute anyone who posts PnL screenshots, leverage flexes, referral codes, "signals", or price targets without an invalidation. The official accounts never DM you; anyone who does is a scammer.</p>
+  <p class="note">Handles were taken from the pages opened today and a community tool list; X itself blocks automated checks, so confirm each handle from the links in app.hyperliquid.xyz before following.</p>`;
+}
+function renderNoise(){
+  return `<div class="eyebrow">What was left out, and how to spot it yourself</div><h2>Noise filter</h2>
+  <p>The rule used for every candidate: keep it if it explains a mechanism or a skill and the author gains nothing from your trading; drop it if the first thing it wants is your sign-up, your subscription, or your belief in a price. Below is what that rule removed on ${VERIFIED_ON}, by pattern, with the specific example that was found.</p>
+  <div class="tw"><table><thead><tr><th>Pattern</th><th>What was found and dropped</th><th>Tell</th></tr></thead><tbody>
+  <tr><td><b>Referral-first guides</b></td><td>hyperliquidguide.com: a thorough 2026 beginner guide that states it earns from its referral code and from affiliate links on wallets, tax software and TradingView. Coin Bureau’s guide: a media brand funded by exchange referral deals.</td><td>The first call to action is a code or a sign-up link. The content may be fine; the incentive is to get you trading, not trading well.</td></tr>
+  <tr><td><b>Unvetted YouTube tutorials</b></td><td>Five "Hyperliquid for beginners" videos (channels: Crypto4light Trading, The Blockchain Today, Lukas Huettis, Greeny, University of Crypto). Descriptions could not be read by the checker, and this category is dominated by referral codes.</td><td>Read the description before the video. A referral code, a "join my group" link, or a thumbnail with a dollar figure means skip.</td></tr>
+  <tr><td><b>Marketing dressed as explainers</b></td><td>Nansen’s "What is HIP-3?" post: accurate in outline, but it pitches Nansen’s product throughout and frames everything as HYPE demand. The HIP-3 docs page says the same with no pitch.</td><td>The explainer ends with the vendor’s dashboard as the answer.</td></tr>
+  <tr><td><b>Token-centric research with conflicts</b></td><td>ASXN’s Hyperliquid newsletter (discloses a validator relationship; content is about HYPE supply and buybacks). Four Pillars’ Hyperliquid annual report (sponsored, authors may hold positions, full text behind a DocSend viewer). Fine for investors; noise for a trader learning mechanics. ASXN’s free HyperScreener data tool was kept.</td><td>Most paragraphs are about the token’s value rather than how the market works.</td></tr>
+  <tr><td><b>Stale, paywalled reports</b></td><td>The Messari/Blockworks Intel "Hyperliquid deep dive": April 2024, cut off behind a $4,500-a-year subscription.</td><td>A date before the last major upgrade and an "Upgrade" button mid-article.</td></tr>
+  <tr><td><b>Self-published "investment-grade" reports</b></td><td>A 2026 "Hyperliquid investment-grade research report" on a personal site whose figures could not be corroborated anywhere.</td><td>Numbers with no source links; a confident valuation; no author history.</td></tr>
+  <tr><td><b>Link rot and summary farms</b></td><td>A well-cited Mirador Finance piece on backstop liquidations now redirects to an expired-domain page. Video summary sites (recapio, chattube, videohighlight) outrank the Mark Douglas seminar itself.</td><td>If the source is gone, the summaries of it are not evidence. Go to the recording.</td></tr>
+  <tr><td><b>Course funnels</b></td><td>Adam Grimes’ once-free "Art and Science of Trading" course now sits inside a subscription site with a $7 trial and $97 to $172 monthly plans. The book stays on the list; the site does not.</td><td>"Free" leads to a trial. Anything that needs a card number to learn the basics is a funnel.</td></tr>
+  <tr><td><b>Dashboard upsells</b></td><td>HyperTracker: the free wallet dashboard is genuinely useful, so it stays, flagged; its landing page sells an API from $179 a month with unsourced claims.</td><td>Use the free view, ignore the pricing page, never pay for "alpha alerts".</td></tr>
+  <tr><td><b>Harmless but noted</b></td><td>Blockworks podcasts carry conference discount codes; Arkham’s post-mortem ends with a sign-up button; Coinglass has a Pro tier. Kept, with the flag on the card.</td><td>A promo for the publisher’s own event is not a reason to lose a good episode.</td></tr>
+  </tbody></table></div>
+  <h3>The general categories to avoid, whatever the source</h3>
+  <ul>
+  <li>Paid signal groups, "VIP" Telegram or Discord channels, and anyone who sells entries.</li>
+  <li>"Turned $100 into $10k" videos, PnL screenshots without the losing trades, and leverage flexes.</li>
+  <li>Copy-trading vaults promoted by the vault leader, and "whale alert" accounts that exist to move thin coins.</li>
+  <li>Points-farming and airdrop threads. They optimise volume, which is the opposite of what a learner needs.</li>
+  <li>Price-target accounts with no invalidation level. A call without a level that proves it wrong is content, not analysis.</li>
+  <li>AI-generated "reports" and summary sites. Read the primary source they summarise.</li>
+  </ul>
+  <h3>A 60-second vetting routine</h3>
+  <ol><li>Who pays the author? If it is you (subscription) or the exchange (referral), weigh it accordingly.</li><li>Does it cite the docs, the chain, or a dataset? If it cites nothing, it is opinion.</li><li>Is there a number you can check in two minutes? Check it against the docs or the explorer.</li><li>Does the piece name what would make it wrong? If not, it is marketing.</li><li>Is it older than the last protocol change it touches? Hyperliquid changes monthly; the docs are the only always-current source.</li></ol>`;
+}
+function renderClock(){ return `<div class="eyebrow">UTC is the exchange clock; you live in IST</div><h2>Market clock</h2><div id="clocklive"></div>`; }
+function renderTools(){
+  return `<div class="eyebrow">The docs’ formulas, with inputs</div><h2>Tools</h2>
+  <div class="card"><h3 style="margin-top:0">Position sizer</h3><p class="note">Choose the stop first. Size follows from risk; leverage is an output.</p>
+  <form class="form" id="f-size"><label>Account (USDC)<input id="sz-acct" type="number" step="any" value="1000"></label><label>Risk per trade (%)<input id="sz-risk" type="number" step="any" value="1"></label><label>Entry price<input id="sz-entry" type="number" step="any" value="80000"></label><label>Stop price<input id="sz-stop" type="number" step="any" value="78400"></label><label>Chosen leverage (isolated)<input id="sz-lev" type="number" step="1" value="5"></label><label>Asset max leverage<input id="sz-max" type="number" step="1" value="40"></label></form>
+  <div class="out" id="o-size"></div></div>
+  <div class="card"><h3 style="margin-top:0">Liquidation price</h3><p class="note">Isolated margin, from the Liquidations page: maintenance margin is half the initial margin at the asset’s maximum leverage.</p>
+  <form class="form" id="f-liq"><label>Side<select id="lq-side"><option value="1">Long</option><option value="-1">Short</option></select></label><label>Entry price<input id="lq-entry" type="number" step="any" value="76834"></label><label>Leverage<input id="lq-lev" type="number" step="1" value="5"></label><label>Asset max leverage<input id="lq-max" type="number" step="1" value="40"></label><label>Extra isolated margin added (USDC)<input id="lq-extra" type="number" step="any" value="0"></label><label>Size (units)<input id="lq-size" type="number" step="any" value="0.005"></label></form>
+  <div class="out" id="o-liq"></div></div>
+  <div class="card"><h3 style="margin-top:0">Funding cost</h3><p class="note">Paid every hour on oracle notional. The default rate when the book sits at the oracle is 0.00125% an hour.</p>
+  <form class="form" id="f-fund"><label>Notional (USDC)<input id="fd-not" type="number" step="any" value="1000"></label><label>Hourly rate (%)<input id="fd-rate" type="number" step="any" value="0.00125"></label><label>Hours held<input id="fd-hours" type="number" step="1" value="24"></label><label>Side<select id="fd-side"><option value="1">Long</option><option value="-1">Short</option></select></label></form>
+  <div class="out" id="o-fund"></div></div>
+  <div class="card"><h3 style="margin-top:0">Fees on a round trip</h3><p class="note">Tier-0 perps: 0.045% taker, 0.015% maker. Referral: 4% off the first $25M. Staking discounts from the Fees page.</p>
+  <form class="form" id="f-fee"><label>Notional per side (USDC)<input id="fe-not" type="number" step="any" value="500"></label><label>Referral code<select id="fe-ref"><option value="0">No</option><option value="0.04">Yes (4% off)</option></select></label><label>Staking tier<select id="fe-stk"><option value="0">None</option><option value="0.05">Wood, 5%</option><option value="0.10">Bronze, 10%</option><option value="0.15">Silver, 15%</option><option value="0.20">Gold, 20%</option><option value="0.30">Platinum, 30%</option><option value="0.40">Diamond, 40%</option></select></label><label>Market<select id="fe-mkt"><option value="main">Main perps (4.5 / 1.5 bp)</option><option value="hip3">HIP-3 growth mode (0.9 / 0.3 bp)</option><option value="spot">Spot (7 / 4 bp)</option></select></label></form>
+  <div class="out" id="o-fee"></div></div>
+  <div class="card"><h3 style="margin-top:0">Expectancy</h3><p class="note">Judge in blocks of 20. The Journal computes this from real entries; here you can test what a plan needs.</p>
+  <form class="form" id="f-exp"><label>Win rate (%)<input id="ex-win" type="number" step="any" value="45"></label><label>Average win (R)<input id="ex-aw" type="number" step="any" value="2"></label><label>Average loss (R)<input id="ex-al" type="number" step="any" value="1"></label><label>Trades per block<input id="ex-n" type="number" step="1" value="20"></label></form>
+  <div class="out" id="o-exp"></div></div>`;
+}
+function calcTools(){
+  const g=id=>parseFloat(document.getElementById(id)?.value);
+  const o=(id,rows)=>{ const el=document.getElementById(id); if(el) el.innerHTML=rows.map(r=>`<div><b>${r[0]}</b>${r[1]}</div>`).join(''); };
+  // sizer
+  { const acct=g('sz-acct'),risk=g('sz-risk'),entry=g('sz-entry'),stop=g('sz-stop'),lev=g('sz-lev'),max=g('sz-max');
+    const risk$=acct*risk/100; const dist=Math.abs(entry-stop)/entry; const notional=risk$/dist; const size=notional/entry; const margin=notional/lev; const mm=1/(2*max); const side=stop<entry?1:-1;
+    const liqFrac = side===1 ? (1/lev-mm)/(1-mm) : (1/lev-mm)/(1+mm);
+    o('o-size',[['Dollars at risk (1R)',fmtMoney(risk$)],['Stop distance',fmtPct(dist*100)],['Notional',fmtMoney(notional)],['Size (units)',fmtNum(size,6)],['Margin at '+lev+'x',fmtMoney(margin)],['Liquidation distance at '+lev+'x',fmtPct(liqFrac*100)+' ('+(liqFrac/dist).toFixed(1)+'× the stop)'],['Verdict',liqFrac/dist>=3?'<span class="pill ok">liquidation far enough</span>':'<span class="pill bad">too close; lower the leverage</span>']]); }
+  // liq
+  { const side=g('lq-side'),entry=g('lq-entry'),lev=g('lq-lev'),max=g('lq-max'),extra=g('lq-extra')||0,size=g('lq-size');
+    const notional=entry*size; const mm=1/(2*max); const margin=notional/lev+extra; const mmReq=notional*mm; const avail=margin-mmReq;
+    const liq = entry - side*avail/size/(1-mm*side);
+    const dist=(liq-entry)/entry*100;
+    o('o-liq',[['Notional',fmtMoney(notional)],['Maintenance margin',fmtPct(mm*100)+' = '+fmtMoney(mmReq)],['Isolated margin',fmtMoney(margin)],['Liquidation price',fmtNum(liq,2)],['Distance from entry',fmtPct(Math.abs(dist))+(dist<0?' below':' above')],['Note','backstop takes over if equity falls under two thirds of maintenance']]); }
+  // funding
+  { const not=g('fd-not'),rate=g('fd-rate'),hours=g('fd-hours'),side=g('fd-side'); const perHour=not*rate/100*side;
+    o('o-fund',[['Per hour (you pay if positive)',fmtMoney(perHour,4)],['Over '+hours+' h',fmtMoney(perHour*hours)],['Per 30 days',fmtMoney(perHour*720)],['Annualised rate',fmtPct(rate*24*365)]]); }
+  // fees
+  { const not=g('fe-not'),ref=g('fe-ref'),stk=g('fe-stk'),mkt=document.getElementById('fe-mkt')?.value; const base={main:[0.045,0.015],hip3:[0.009,0.003],spot:[0.07,0.04]}[mkt]||[0.045,0.015];
+    const mult=(1-ref)*(1-stk); const tk=base[0]*mult, mk=base[1]*mult;
+    o('o-fee',[['Taker rate',fmtPct(tk,4)],['Maker rate',fmtPct(mk,4)],['Taker in, taker out',fmtMoney(not*tk/100*2)],['Taker in, maker out',fmtMoney(not*(tk+mk)/100)],['Maker in, maker out',fmtMoney(not*mk/100*2)],['As a share of a 1R = '+fmtMoney(not*0.02)+' stop (2%)',fmtPct(not*(tk+mk)/100/(not*0.02)*100,1)]]); }
+  // expectancy
+  { const w=g('ex-win')/100,aw=g('ex-aw'),al=g('ex-al'),n=g('ex-n'); const e=w*aw-(1-w)*al; const be=al/(aw+al)*100;
+    o('o-exp',[['Expectancy per trade',e.toFixed(2)+'R'],['Expected over the block',(e*n).toFixed(1)+'R'],['Break-even win rate',fmtPct(be,1)],['Verdict',e>0?'<span class="pill ok">positive</span>':'<span class="pill bad">negative; the plan loses before fees</span>']]); }
+}
+function rOf(t){ if(!Number.isFinite(t.entry)||!Number.isFinite(t.stop)||!Number.isFinite(t.exit)||!Number.isFinite(t.size)||t.entry===t.stop) return NaN; const risk=Math.abs(t.entry-t.stop)*t.size; const side=t.side==='short'?-1:1; const pnl=(t.exit-t.entry)*t.size*side-(t.fees||0)-(t.funding||0); return pnl/risk; }
+function renderJournal(){
+  const closed=state.journal.filter(t=>Number.isFinite(t.r));
+  const blocks=[]; for(let i=0;i<closed.length;i+=20) blocks.push(closed.slice(i,i+20));
+  const stats=b=>{ const n=b.length; const wins=b.filter(t=>t.r>0); const losses=b.filter(t=>t.r<=0); const aw=wins.length?wins.reduce((a,t)=>a+t.r,0)/wins.length:0; const al=losses.length?-losses.reduce((a,t)=>a+t.r,0)/losses.length:0; const exp=n?b.reduce((a,t)=>a+t.r,0)/n:NaN; const adh=n?b.filter(t=>t.grade==='A').length/n*100:NaN; return {n,win:n?wins.length/n*100:NaN,aw,al,exp,adh,sum:b.reduce((a,t)=>a+t.r,0)}; };
+  const nowLocal=(()=>{ const d=new Date(); const p=zparts(d,'Asia/Kolkata'); return `${p.y}-${pad(p.m)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}`; })();
+  let h=`<div class="eyebrow">Layer 7, in practice</div><h2>Journal</h2>
+  <p class="small">One entry per trade, graded on adherence separately from PnL. R is computed from entry, stop, exit and size, net of the fees and funding you type. Blocks of 20 are judged below. <span id="dbmode2" class="note"></span></p>
+  <div class="card"><h3 style="margin-top:0">New trade</h3>
+  <form class="form" id="f-j">
+   <label>Date and time (IST)<input id="j-ts" type="datetime-local" value="${nowLocal}"></label>
+   <label>Market<input id="j-mkt" type="text" placeholder="BTC, HYPE, xyz:SP500" required></label>
+   <label>Side<select id="j-side"><option value="long">Long</option><option value="short">Short</option></select></label>
+   <label>Setup<input id="j-setup" type="text" placeholder="e.g. 4h HL retest at 00:00 UTC level"></label>
+   <label>Entry<input id="j-entry" type="number" step="any" required></label>
+   <label>Stop<input id="j-stop" type="number" step="any" required></label>
+   <label>Target<input id="j-target" type="number" step="any"></label>
+   <label>Size (units)<input id="j-size" type="number" step="any" required></label>
+   <label>Exit (blank if open)<input id="j-exit" type="number" step="any"></label>
+   <label>Fees (USDC)<input id="j-fees" type="number" step="any" value="0"></label>
+   <label>Funding paid (USDC, negative if received)<input id="j-fund" type="number" step="any" value="0"></label>
+   <label>Grade<select id="j-grade"><option value="A">A: followed the plan</option><option value="B">B: small deviation</option><option value="C">C: did not follow</option></select></label>
+   <label>Exit reason<input id="j-reason" type="text" placeholder="target, stop, time stop, early exit"></label>
+   <label class="wide">Lesson (one line)<textarea id="j-lesson"></textarea></label>
+   <div class="wide" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit">Save trade</button><span class="note" id="j-preview"></span></div>
+  </form></div>`;
+  if(!closed.length && !state.journal.length){ h+=`<div class="empty">No trades yet. Back-fill your last five testnet trades to test the fields, then journal every trade from here on. Blocks of 20 appear once there are closed trades.</div>`; }
+  if(blocks.length){ h+='<h3>Blocks of 20 (newest first)</h3><div class="tw"><table><thead><tr><th>Block</th><th class="num">Trades</th><th class="num">Win rate</th><th class="num">Avg win</th><th class="num">Avg loss</th><th class="num">Expectancy</th><th class="num">Sum</th><th class="num">Adherence</th><th>Verdict</th></tr></thead><tbody>'+blocks.map((b,i)=>{ const s=stats(b); const ok=s.n>=20&&s.exp>0&&s.adh>90; return `<tr><td>${i===0?'Current':'Block '+(blocks.length-i)}</td><td class="num">${s.n}</td><td class="num">${fmtPct(s.win,0)}</td><td class="num">${s.aw.toFixed(2)}R</td><td class="num">${s.al.toFixed(2)}R</td><td class="num">${s.exp.toFixed(2)}R</td><td class="num">${s.sum.toFixed(1)}R</td><td class="num">${fmtPct(s.adh,0)}</td><td>${s.n<20?'<span class="pill">incomplete</span>':(ok?'<span class="pill ok">scale up allowed</span>':'<span class="pill warn">hold size</span>')}</td></tr>`; }).join('')+'</tbody></table></div>'; }
+  if(state.journal.length){ h+='<h3>Trades</h3><div class="card tight">'+state.journal.map(t=>{ const r=t.r; const open=!Number.isFinite(r); const d=t.ts?t.ts.replace('T',' '):''; return `<div class="jrow" data-id="${t.id}"><span class="d">${esc(d)}</span><span><b>${esc(t.market||'')}</b> ${t.side==='short'?'short':'long'} · ${esc(t.setup||'')}<div class="meta">entry ${fmtNum(t.entry,4)} · stop ${fmtNum(t.stop,4)} · size ${fmtNum(t.size,6)}${open?' · open':' · exit '+fmtNum(t.exit,4)}${t.reason?' · '+esc(t.reason):''}${t.lesson?'<br>'+esc(t.lesson):''}</div></span><span class="r ${open?'':(r>0?'pos':'neg')}">${open?'open':(r>0?'+':'')+r.toFixed(2)+'R'} <span class="pill ${t.grade==='A'?'ok':(t.grade==='B'?'warn':'bad')}">${esc(t.grade||'')}</span></span><button type="button" class="x" data-del="${t.id}">delete</button></div>`; }).join('')+'</div>'; }
+  return h;
+}
+function journalPreview(){ const g=id=>parseFloat(document.getElementById(id)?.value); const t={entry:g('j-entry'),stop:g('j-stop'),exit:g('j-exit'),size:g('j-size'),fees:g('j-fees')||0,funding:g('j-fund')||0,side:document.getElementById('j-side')?.value}; const r=rOf(t); const risk=Math.abs(t.entry-t.stop)*t.size; const el=document.getElementById('j-preview'); if(!el) return; el.textContent = isFinite(risk)&&risk>0 ? `1R = ${fmtMoney(risk)}${isFinite(r)?` · result ${r>0?'+':''}${r.toFixed(2)}R`:' · open'}` : ''; }
+async function saveTrade(){
+  const g=id=>document.getElementById(id)?.value; const n=id=>{ const v=parseFloat(g(id)); return isFinite(v)?v:null; };
+  const t={ts:g('j-ts'),market:(g('j-mkt')||'').trim(),side:g('j-side'),setup:(g('j-setup')||'').trim(),entry:n('j-entry'),stop:n('j-stop'),target:n('j-target'),size:n('j-size'),exit:n('j-exit'),fees:n('j-fees')||0,funding:n('j-fund')||0,grade:g('j-grade'),reason:(g('j-reason')||'').trim(),lesson:(g('j-lesson')||'').trim(),createdAt:new Date().toISOString()};
+  if(!t.market||t.entry==null||t.stop==null||t.size==null){ toast('Market, entry, stop and size are required'); return; }
+  const r=rOf(Object.assign({},t,{exit:t.exit==null?NaN:t.exit})); t.r = isFinite(r)?r:null;
+  const id='t'+Date.now().toString(36);
+  if(db&&journalCol){ try{ await journalCol.doc(id).set(t); toast('Trade saved'); }catch(e){ toast('Store refused the write; saved locally'); state.journal.unshift(Object.assign({id},t)); lsSet('hlwb.journal',state.journal); renderCurrent(); } }
+  else { state.journal.unshift(Object.assign({id},t)); state.journal.sort((a,b)=>(b.ts||'').localeCompare(a.ts||'')); lsSet('hlwb.journal',state.journal); toast('Trade saved in this browser'); renderCurrent(); }
+}
+async function deleteTrade(id){
+  if(db&&journalCol){ try{ await journalCol.doc(id).delete(); toast('Deleted'); }catch(e){ toast('Could not delete'); } }
+  else { state.journal=state.journal.filter(t=>t.id!==id); lsSet('hlwb.journal',state.journal); renderCurrent(); }
+}
+function renderSchedule(){
+  return `<div class="eyebrow">Eight weeks to a journaled mainnet trader at minimum size</div><h2>Schedule</h2><p>After week 8 the unit of progress is a 20-trade block, not a week. Tick a week when its graduation check is true, not when the reading is done.</p>
+  <div class="tw"><table><thead><tr><th>Week</th><th>Layers</th><th class="num">Hours</th><th>Graduation check</th><th>Done</th></tr></thead><tbody>${SCHEDULE.map(r=>`<tr><td class="num">${r[0]}</td><td>${esc(r[1])}</td><td class="num">${r[2]}</td><td>${esc(r[3])}</td><td><input type="checkbox" data-item="week-${r[0]}" ${state.items['week-'+r[0]]?'checked':''} aria-label="Week ${r[0]} done"></td></tr>`).join('')}</tbody></table></div>
+  <p>Then: repeat 20-trade blocks. Raise risk from 0.5% toward 1% only after a block that is both positive and above 90% adherence. Add HIP-3 markets or hyperps only after two such blocks on the main perps.</p>`;
+}
+function renderGlossary(){ return `<div class="eyebrow">Terms, one line each</div><h2>Glossary</h2><div class="tw"><table><tbody>${GLOSSARY.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table></div>`; }
+function renderSources(){
+  const groups=[['Start here',[['About Hyperliquid','about-hyperliquid'],['Hyperliquid 101 for non-crypto audiences','about-hyperliquid/hyperliquid-101-for-non-crypto-audiences'],['How to start trading','onboarding/how-to-start-trading'],['Testnet faucet','onboarding/testnet-faucet'],['HyperCore overview','hypercore/overview']]],
+   ['Trading',[['Order book','trading/order-book'],['Order types','trading/order-types'],['Take profit and stop loss','trading/take-profit-and-stop-loss-orders-tp-sl'],['Fees','trading/fees'],['Perpetual assets','trading/perpetual-assets'],['Contract specifications','trading/contract-specifications'],['Margining','trading/margining'],['Margin tiers','trading/margin-tiers'],['Robust price indices','trading/robust-price-indices'],['Liquidations','trading/liquidations'],['Auto-deleveraging','trading/auto-deleveraging'],['Funding','trading/funding'],['Entry price and PnL','trading/entry-price-and-pnl'],['Hyperps','trading/hyperps'],['Delisting','trading/delisting'],['Portfolio graphs','trading/portfolio-graphs'],['Miscellaneous UI','trading/miscellaneous-ui'],['Self-trade prevention','trading/self-trade-prevention']]],
+   ['Support FAQ',[['Support guide','support/read-me-support-guide'],['Why was I liquidated?','support/faq/trade-outcome-looks-incorrect/why-was-i-liquidated'],['How does margining work?','support/faq/trade-outcome-looks-incorrect/how-does-margining-work'],['My TP/SL did not execute correctly','support/faq/trade-outcome-looks-incorrect/my-tp-sl-did-not-execute-correctly'],['Why was my chase order canceled?','support/faq/trade-outcome-looks-incorrect/why-was-my-chase-order-canceled'],['Trailing stops','support/faq/trailing-stops'],['I got scammed or hacked','support/faq/i-got-scammed-hacked']]],
+   ['Ecosystem',[['HIPs','hyperliquid-improvement-proposals-hips'],['HIP-1','hyperliquid-improvement-proposals-hips/hip-1-native-token-standard'],['HIP-2','hyperliquid-improvement-proposals-hips/hip-2-hyperliquidity'],['HIP-3','hyperliquid-improvement-proposals-hips/hip-3-builder-deployed-perpetuals'],['HIP-4','hyperliquid-improvement-proposals-hips/hip-4-outcome-markets'],['Vaults','hypercore/vaults'],['Protocol vaults (HLP)','hypercore/vaults/protocol-vaults'],['Staking','hypercore/staking'],['How to stake HYPE','onboarding/how-to-stake-hype'],['Referrals','referrals'],['Points','points']]],
+   ['Developers',[['API','for-developers/api'],['Info endpoint','for-developers/api/info-endpoint'],['Tick and lot size','for-developers/api/tick-and-lot-size'],['Activation gas fee','for-developers/api/activation-gas-fee'],['Historical data','historical-data']]]];
+  return `<div class="eyebrow">What was opened, what was not</div><h2>Sources and verification</h2>
+  <p>The official docs index below comes from the GitBook sitemap read on ${VERIFIED_ON}; the pages that carry numbers in this curriculum (fees, funding, liquidations, order types, TP/SL, onboarding, faucet, entry price and PnL, HIP-3, protocol vaults) were opened that day. The BLS and Federal Reserve schedules behind the market clock, the NYSE hours page, and every media item marked "opened" were fetched the same day.</p>
+  ${groups.map(g=>`<h3>${g[0]}</h3><ul>${g[1].map(p=>`<li><a href="${D(p[1])}" target="_blank" rel="noopener">${esc(p[0])}</a></li>`).join('')}</ul>`).join('')}
+  <h3>Could not be re-checked today</h3>
+  <ul><li>CME Globex hours page (timed out twice); hours are stated from the standard schedule.</li><li>Hyperdash and DefiLlama blocked automated access; both are confirmed by several independent sources.</li><li>X handles and the Discord invite: X blocks automated reads; verify from the links in app.hyperliquid.xyz.</li><li>The Mark Douglas seminar’s exact video IDs; the card links a YouTube search for the exact title.</li></ul>
+  <h3>Method</h3>
+  <p class="small">About 25 web searches and 60 page fetches on ${VERIFIED_ON}: founder interviews and podcasts, mechanism research on HLP, funding and liquidations, trading psychology sources, Hyperliquid analytics tools, YouTube tutorials, session and time-of-day studies, and the two incident post-mortems. Everything rejected is listed on the <a href="#noise">Noise filter</a> page with the reason.</p>`;
+}
+
+function renderCurrent(scroll){
+  const c=document.getElementById('content'); let html='';
+  const l=LAYERS.find(x=>x.id===current);
+  if(l) html=renderLayer(l);
+  else if(current==='media') html=renderMedia();
+  else if(current==='noise') html=renderNoise();
+  else if(current==='clock') html=renderClock();
+  else if(current==='tools') html=renderTools();
+  else if(current==='journal') html=renderJournal();
+  else if(current==='schedule') html=renderSchedule();
+  else if(current==='glossary') html=renderGlossary();
+  else if(current==='sources') html=renderSources();
+  else html=renderOverview();
+  c.innerHTML=html;
+  if(current==='clock') renderClockLive();
+  if(current==='tools') calcTools();
+  if(current==='journal') journalPreview();
+  updateDbBadge(); const b2=document.getElementById('dbmode2'); if(b2) b2.textContent=document.getElementById('dbmode')?.textContent||'';
+  updateNav();
+  if(scroll) window.scrollTo({top:0});
+}
+function route(){ const h=(location.hash||'#overview').slice(1); current=VIEWS.some(v=>v.id===h)?h:'overview'; renderCurrent(true); }
+
+/* ============================ EVENTS ============================ */
+document.addEventListener('change',e=>{
+  const t=e.target; if(t.matches('input[type=checkbox][data-item]')){ toggleItem(t.dataset.item,t.checked); const row=t.closest('.check'); if(row) row.classList.toggle('done',t.checked); if(current==='overview') renderCurrent(); }
+  if(t.closest('#f-size,#f-liq,#f-fund,#f-fee,#f-exp')) calcTools(); if(t.closest('#f-j')) journalPreview();
+});
+document.addEventListener('input',e=>{ if(e.target.closest('#f-size,#f-liq,#f-fund,#f-fee,#f-exp')) calcTools(); if(e.target.closest('#f-j')) journalPreview(); });
+document.addEventListener('submit',e=>{ e.preventDefault(); if(e.target.id==='f-j') saveTrade(); });
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.f){ mediaFilter=b.dataset.f; renderCurrent(); return; }
+  if(b.dataset.del){ if(b.classList.contains('arm')){ deleteTrade(b.dataset.del); } else { b.classList.add('arm'); b.textContent='confirm delete'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='delete'; },3000); } return; }
+  if(b.dataset.l&&b.dataset.q!=null){ const l=LAYERS.find(x=>x.id===b.dataset.l); const qi=+b.dataset.q, oi=+b.dataset.o; const q=l.quiz[qi]; const box=b.closest('.q'); box.querySelectorAll('button').forEach((x,i)=>{ x.disabled=true; if(i===q.a) x.classList.add('right'); else if(i===oi) x.classList.add('wrong'); });
+    const answered=[...document.querySelectorAll('.q')].filter(x=>x.querySelector('button:disabled'));
+    const score=[...document.querySelectorAll('.q')].filter(x=>x.querySelector('button.right:disabled')&&!x.querySelector('button.wrong')).length;
+    const n=answered.length; const el=document.getElementById('qs-'+l.id); if(el) el.textContent=`${score} right of ${n} answered`;
+    if(n===l.quiz.length){ const best=Math.max(state.quiz[l.id]||0,score); state.quiz[l.id]=best; persistProgress(); if(el) el.textContent=`${score}/${l.quiz.length}. ${score===l.quiz.length?'Full marks.':'Re-read the concepts you missed, then retake by reopening this layer.'}`; }
+  }
+});
+window.addEventListener('hashchange',route);
+
+/* ============================ BOOT ============================ */
+loadLocal(); buildNav(); route(); tickStrip(); setInterval(tickStrip,1000); initDb();
+</script>
+
+</body>
+</html>
