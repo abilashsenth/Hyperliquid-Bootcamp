@@ -58,3 +58,7 @@ A resource is accepted if it teaches a mechanism or a skill and the author gains
 ## Disclaimer
 
 Not affiliated with Hyperliquid Labs or the Hyper Foundation. Nothing here is financial advice. Perpetual futures can lose more than you expect faster than you expect; that is what Layer 4 is for.
+
+## Regenerating the docs
+
+`docs/curriculum.md`, `docs/media-track.md` and `index.html` are generated from the page source by `tools/gen-docs.js`, so the curriculum text, the quizzes and the media cards cannot drift between the page and the docs. Edit the data block in the page source, then run the script.
